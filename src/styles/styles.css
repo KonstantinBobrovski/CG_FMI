@@ -25,3 +25,26 @@
 .form-group label {
     margin-right: 5px;
 }
+
+#treemap-figures li{
+    cursor: pointer;
+}
+
+
+.sidebar > * {
+ border-top: 1px solid black;
+ padding-left: 5px;
+}
+
+#figures-chooser{
+  
+    margin-bottom: 20px;
+
+}
+#figures-chooser button{
+    margin-right: 5px;
+}
+
+.delete-button{
+color: red;
+}
