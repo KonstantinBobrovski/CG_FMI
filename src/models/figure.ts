@@ -8,6 +8,17 @@ abstract class Figure {
       const el = this.properties[key];
       this.svgElement.setAttributeNS(null, el.name, el.value);
     });
+
+    const rotate = this.properties["rotate"];
+
+    const rotateOrigin = this.properties["transform-origin"];
+    if (!rotate && !rotateOrigin) return;
+    this.svgElement.style.transformOrigin = rotateOrigin as any;
+    this.svgElement.setAttributeNS(
+      null,
+      "transform",
+      `rotate(${rotate.value})`
+    );
   }
   constructor(public svgElement: SvgInHtml) {}
 }

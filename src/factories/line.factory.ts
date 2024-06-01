@@ -21,7 +21,7 @@ export class LineFactory extends BaseFigureFactory<Line> {
   }
 
   getProperties(): Record<string, Property> {
-    return [
+    const currentProps = [
       new NumberProperty("x1", 50),
       new NumberProperty("y1", 50),
       new NumberProperty("x2", 100),
@@ -29,5 +29,6 @@ export class LineFactory extends BaseFigureFactory<Line> {
       new ColorProperty("stroke", "black"),
       new NumberProperty("z-index", onCreateElement(), "z-index"),
     ].reduce((prev, curr) => ({ ...prev, [curr.name]: { ...curr } }), {});
+    return { ...BaseFigureFactory.getBaseProperties(), ...currentProps };
   }
 }

@@ -23,20 +23,12 @@ export class RectangleFactory extends BaseFigureFactory<Figure> {
   }
 
   getProperties(): Record<string, Property> {
-    return [
+    const currentProps = [
       new NumberProperty("x", 50),
       new NumberProperty("y", 50),
       new NumberProperty("width", 100),
       new NumberProperty("height", 100),
-      new PercentageProperty("opacity", 1),
-      new NumberProperty("rotate", 0),
-      new EnumProperty(
-        "transform-origin",
-        "center",
-        ["center", "top", "bottom", "left", "right"],
-        "rotate-point"
-      ),
-      new NumberProperty("z-index", onCreateElement(), "z-index"),
     ].reduce((prev, curr) => ({ ...prev, [curr.name]: { ...curr } }), {});
+    return { ...BaseFigureFactory.getBaseProperties(), ...currentProps };
   }
 }

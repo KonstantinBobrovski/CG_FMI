@@ -1,0 +1,55 @@
+import { figuresContainer } from "../figures-container";
+import Figure from "../models/figure";
+import { EnumProperty, Property, ValueType } from "../models/propertie";
+
+const propertiesTab = document.querySelector("#properties-tab")!;
+
+export const createPropPane = (figure: Figure) => {
+  while (propertiesTab?.firstChild) {
+    propertiesTab.firstChild.remove();
+  }
+  Object.keys(figure.properties).forEach((key) => {
+    const property = figure.properties[key];
+
+    const wrapper = document.createElement("div");
+    wrapper.classList.add("form-group");
+    const label = document.createElement("label");
+    label.textContent = property.alias;
+    label.htmlFor = property.name;
+    wrapper.appendChild(label);
+    propertiesTab.appendChild(wrapper);
+    let inputElement = document.createElement("input") as HTMLElement & {
+      value: string;
+      type: string;
+    };
+    if (property.valueType === ValueType.Enums) {
+      inputElement = document.createElement("select");
+      (property as EnumProperty).allowedValues.forEach((value) => {
+        const option = document.createElement("option");
+        option.value = value;
+        option.text = value;
+        inputElement.appendChild(option);
+      });
+      inputElement.value = (property as EnumProperty).value;
+    } else {
+      const inputType = {
+        [ValueType.Number]: "number",
+        [ValueType.String]: "text",
+        [ValueType.Color]: "color",
+        [ValueType.Percent]: "number",
+        [ValueType.Enums]: "",
+      };
+      inputElement.type = inputType[property.valueType];
+      inputElement.value = property.value;
+    }
+    wrapper.appendChild(inputElement);
+    inputElement.addEventListener("input", () => {
+      figure.properties[property.name].value = inputElement.value;
+      if (property.name === "z-index") {
+        figuresContainer.refreshOrder();
+      }
+      figure.refreshProperties();
+    });
+    propertiesTab.appendChild(wrapper);
+  });
+};
