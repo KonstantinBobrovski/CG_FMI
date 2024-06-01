@@ -27,6 +27,8 @@ export abstract class BaseFigureFactory<T extends Figure> {
       new NumberProperty("z-index", onCreateElement(), "z-index"),
       new NumberProperty("scaleX", 1, "Scale X"),
       new NumberProperty("scaleY", 1, "Scale Y"),
+      new NumberProperty("translateX", 0, "Translate X"),
+      new NumberProperty("translateY", 0, "Translate Y"),
     ].reduce((prev, curr) => ({ ...prev, [curr.name]: { ...curr } }), {});
   }
   abstract getProperties(): Record<string, Property>;
