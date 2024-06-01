@@ -1,8 +1,13 @@
 import Figure from "../models/figure";
-import { Property, NumberProperty } from "../models/propertie";
+import {
+  Property,
+  NumberProperty,
+  PercentageProperty,
+  EnumProperty,
+} from "../models/propertie";
 import { Rectangle } from "../models/rectangle";
 import { SvgInHtml } from "../types/svg";
-import { BaseFigureFactory } from "./base-figure.factory";
+import { BaseFigureFactory, onCreateElement } from "./base-figure.factory";
 
 export class RectangleFactory extends BaseFigureFactory<Figure> {
   createFigure(): Figure {
@@ -23,6 +28,15 @@ export class RectangleFactory extends BaseFigureFactory<Figure> {
       new NumberProperty("y", 50),
       new NumberProperty("width", 100),
       new NumberProperty("height", 100),
+      new PercentageProperty("opacity", 1),
+      new NumberProperty("rotate", 0),
+      new EnumProperty(
+        "transform-origin",
+        "center",
+        ["center", "top", "bottom", "left", "right"],
+        "rotate-point"
+      ),
+      new NumberProperty("z-index", onCreateElement(), "z-index"),
     ].reduce((prev, curr) => ({ ...prev, [curr.name]: { ...curr } }), {});
   }
 }
