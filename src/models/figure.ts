@@ -12,13 +12,19 @@ abstract class Figure {
     const rotate = this.properties["rotate"];
 
     const rotateOrigin = this.properties["transform-origin"];
-    if (!rotate && !rotateOrigin) return;
     this.svgElement.style.transformOrigin = rotateOrigin as any;
-    this.svgElement.setAttributeNS(
-      null,
-      "transform",
-      `rotate(${rotate.value})`
-    );
+    const scaleX = this.properties["scaleX"];
+    const scaleY = this.properties["scaleY"];
+    const transforms: string[] = [];
+    if (scaleX || scaleY) {
+      transforms.push(` scale(${scaleX.value}, ${scaleY.value})`);
+    }
+
+    if (rotate && rotateOrigin) {
+      transforms.push(`rotate(${rotate.value})`);
+    }
+
+    this.svgElement.setAttributeNS(null, "transform", transforms.join(" "));
   }
   constructor(public svgElement: SvgInHtml) {}
 }

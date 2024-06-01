@@ -25,6 +25,8 @@ export abstract class BaseFigureFactory<T extends Figure> {
         "rotate-point"
       ),
       new NumberProperty("z-index", onCreateElement(), "z-index"),
+      new NumberProperty("scaleX", 1, "Scale X"),
+      new NumberProperty("scaleY", 1, "Scale Y"),
     ].reduce((prev, curr) => ({ ...prev, [curr.name]: { ...curr } }), {});
   }
   abstract getProperties(): Record<string, Property>;
