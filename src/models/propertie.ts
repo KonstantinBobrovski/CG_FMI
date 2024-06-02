@@ -22,14 +22,24 @@ export abstract class Property {
 }
 
 export class NumberProperty extends Property {
-  constructor(name: string, value: number, alias = name) {
+  constructor(
+    name: string,
+    value: number,
+
+    alias = name,
+    public min: number = 0,
+    public max: number = Number.MAX_VALUE
+  ) {
     super(name, ValueType.Number);
     this.value = "" + value;
     this.alias = alias;
   }
 
   validate(value: number): boolean {
-    return typeof value === "number";
+    if (value < this.min || value > this.max) {
+      return false;
+    }
+    return true;
   }
 }
 

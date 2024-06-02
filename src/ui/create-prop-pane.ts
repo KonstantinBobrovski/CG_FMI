@@ -22,25 +22,33 @@ export const createPropPane = (figure: Figure) => {
       value: string;
       type: string;
     };
-    if (property.valueType === ValueType.Enums) {
-      inputElement = document.createElement("select");
-      (property as EnumProperty).allowedValues.forEach((value) => {
-        const option = document.createElement("option");
-        option.value = value;
-        option.text = value;
-        inputElement.appendChild(option);
-      });
-      inputElement.value = (property as EnumProperty).value;
-    } else {
-      const inputType = {
-        [ValueType.Number]: "number",
-        [ValueType.String]: "text",
-        [ValueType.Color]: "color",
-        [ValueType.Percent]: "number",
-        [ValueType.Enums]: "",
-      };
-      inputElement.type = inputType[property.valueType];
-      inputElement.value = property.value;
+
+    const inputTypeMap = {
+      [ValueType.Number]: "number",
+      [ValueType.String]: "text",
+      [ValueType.Color]: "color",
+      [ValueType.Percent]: "number",
+      [ValueType.Enums]: "",
+    };
+    switch (property.valueType) {
+      case ValueType.Enums:
+        inputElement = document.createElement("select");
+        (property as EnumProperty).allowedValues.forEach((value) => {
+          const option = document.createElement("option");
+          option.value = value;
+          option.text = value;
+          inputElement.appendChild(option);
+        });
+        inputElement.value = (property as EnumProperty).value;
+        break;
+      case ValueType.Percent:
+        (inputElement as any).step = 0.01;
+        inputElement.type = inputTypeMap[property.valueType];
+        inputElement.value = property.value;
+        break;
+      default:
+        inputElement.type = inputTypeMap[property.valueType];
+        inputElement.value = property.value;
     }
     wrapper.appendChild(inputElement);
     inputElement.addEventListener("input", () => {
