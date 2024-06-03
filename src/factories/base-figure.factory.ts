@@ -4,7 +4,7 @@ import {
   NumberProperty,
   PercentageProperty,
   Property,
-} from "../models/propertie";
+} from "../models/properties";
 
 let elementsCreated = 0;
 export const onCreateElement = () => {

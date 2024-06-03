@@ -3,12 +3,10 @@ import Figure from "../models/figure";
 import {
   ColorProperty,
   NumberProperty,
-  PercentageProperty,
   Property,
-  StringProperty,
-} from "../models/propertie";
+} from "../models/properties";
 import { SvgInHtml } from "../types/svg";
-import { BaseFigureFactory, onCreateElement } from "./base-figure.factory";
+import { BaseFigureFactory } from "./base-figure.factory";
 
 export class CircleFactory implements BaseFigureFactory<Circle> {
   createFigure(): Figure {

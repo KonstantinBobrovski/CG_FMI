@@ -1,5 +1,5 @@
 import { Line } from "../models/line";
-import { Property, NumberProperty, ColorProperty } from "../models/propertie";
+import { Property, NumberProperty, ColorProperty } from "../models/properties";
 import { SvgInHtml } from "../types/svg";
 import { BaseFigureFactory, onCreateElement } from "./base-figure.factory";
 
