@@ -2,18 +2,19 @@ import { BaseFigureFactory } from "./factories/base-figure.factory";
 import { CircleFactory } from "./factories/circle.factory";
 import { LineFactory } from "./factories/line.factory";
 import { RectangleFactory } from "./factories/rectangle.factory";
-import { PolygonFactory } from "./factories/polygon.figure.factory";
+import { PolygonFactory } from "./factories/polygon.factory";
+import { EllipseFactory } from "./factories/ellipse.factory";
 import { figuresContainer } from "./figures-container";
 
 import Figure from "./models/figure";
-import { SvgInHtml } from "./types/svg";
 import { createPropPane } from "./ui/create-prop-pane";
 
 const figureFactories: BaseFigureFactory<Figure>[] = [
   new CircleFactory(),
   new RectangleFactory(),
   new LineFactory(),
-  new PolygonFactory()
+  new PolygonFactory(),
+  new EllipseFactory(),
 ];
 
 const figuresChooser = document.querySelector("#figures-chooser")!;

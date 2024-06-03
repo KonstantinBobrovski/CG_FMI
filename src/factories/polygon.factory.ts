@@ -1,11 +1,10 @@
-import Figure from "../models/figure";
 import { Property, StringProperty } from "../models/properties";
 import { Polygon } from "../models/polygon";
 import { SvgInHtml } from "../types/svg";
 import { BaseFigureFactory } from "./base-figure.factory";
 
-export class PolygonFactory extends BaseFigureFactory<Figure> {
-  createFigure(): Figure {
+export class PolygonFactory extends BaseFigureFactory<Polygon> {
+  createFigure(): Polygon {
     const element = document.createElementNS(
       BaseFigureFactory.svgNS,
       "polygon"

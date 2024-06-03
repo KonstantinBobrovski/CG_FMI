@@ -1,5 +1,4 @@
 import { Circle } from "../models/circle";
-import Figure from "../models/figure";
 import {
   ColorProperty,
   NumberProperty,
@@ -9,7 +8,7 @@ import { SvgInHtml } from "../types/svg";
 import { BaseFigureFactory } from "./base-figure.factory";
 
 export class CircleFactory implements BaseFigureFactory<Circle> {
-  createFigure(): Figure {
+  createFigure(): Circle {
     const element = document.createElementNS(
       BaseFigureFactory.svgNS,
       "circle"

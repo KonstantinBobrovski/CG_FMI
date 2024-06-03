@@ -1,11 +1,10 @@
-import Figure from "../models/figure";
 import { Property, NumberProperty } from "../models/properties";
 import { Rectangle } from "../models/rectangle";
 import { SvgInHtml } from "../types/svg";
 import { BaseFigureFactory } from "./base-figure.factory";
 
-export class RectangleFactory extends BaseFigureFactory<Figure> {
-  createFigure(): Figure {
+export class RectangleFactory extends BaseFigureFactory<Rectangle> {
+  createFigure(): Rectangle {
     const element = document.createElementNS(
       BaseFigureFactory.svgNS,
       "rect"
