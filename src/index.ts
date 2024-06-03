@@ -37,6 +37,37 @@ const bootstrap = () => {
     });
     figuresChooser?.appendChild(button);
   });
+
+  document.querySelector("#download-png")!.addEventListener("click", () => {
+    const svgData = new XMLSerializer().serializeToString(svgRoot);
+    const svgDataBase64 = btoa(unescape(encodeURIComponent(svgData)));
+    const svgDataUrl = `data:image/svg+xml;charset=utf-8;base64,${svgDataBase64}`;
+
+    const image = new Image();
+
+    image.addEventListener("load", () => {
+      const rect = svgRoot.getBoundingClientRect();
+      const width = rect.width || 1000;
+      const height = rect.height || 500;
+
+      const canvas = document.createElement("canvas")!;
+
+      canvas.setAttribute("width", width.toString());
+      canvas.setAttribute("height", height.toString());
+
+      const context = canvas.getContext("2d")!;
+      context.drawImage(image, 0, 0, width, height);
+
+      const dataUrl = canvas.toDataURL("image/png");
+
+      const link = document.createElement("a");
+      link.download = "image.png";
+      link.href = dataUrl;
+      link.click();
+    });
+
+    image.src = svgDataUrl;
+  });
 };
 
 const dragAndDrop = (figure: Figure) => {
@@ -54,18 +85,14 @@ const dragAndDrop = (figure: Figure) => {
       const ctm = (svgRoot as any).getScreenCTM();
 
       const rotate = +figure.properties["rotate"].value;
-      const radians = rotate * (Math.PI / 180); // Convert degrees to radians
+      const radians = rotate * (Math.PI / 180);
 
-      // Calculate deltas in the global coordinate system
       const dx = (currentX - startX) / ctm.a;
       const dy = (currentY - startY) / ctm.d;
-      console.log(Math.cos(-radians), Math.sin(-radians));
 
-      // Apply inverse rotation transformation
       const rotatedDx = dx * Math.cos(-radians) - dy * Math.sin(-radians);
       const rotatedDy = dx * Math.sin(-radians) + dy * Math.cos(-radians);
 
-      // Update the translation properties
       figure.properties["translateX"].value = startTranslateX + rotatedDx + "";
       figure.properties["translateY"].value = startTranslateY + rotatedDy + "";
       figure.refreshProperties();
