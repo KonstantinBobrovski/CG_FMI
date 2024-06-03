@@ -1,5 +1,6 @@
 import Figure from "../models/figure";
 import {
+  ColorProperty,
   EnumProperty,
   NumberProperty,
   PercentageProperty,
@@ -29,6 +30,8 @@ export abstract class BaseFigureFactory<T extends Figure> {
       new NumberProperty("scaleY", 1, "Scale Y"),
       new NumberProperty("translateX", 0, "Translate X"),
       new NumberProperty("translateY", 0, "Translate Y"),
+      new ColorProperty("fill", "black"),
+      new ColorProperty("stroke", "black"),
     ].reduce((prev, curr) => ({ ...prev, [curr.name]: { ...curr } }), {});
   }
   abstract getProperties(): Record<string, Property>;

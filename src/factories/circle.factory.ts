@@ -24,7 +24,6 @@ export class CircleFactory implements BaseFigureFactory<Circle> {
       new NumberProperty("cx", 50, "x"),
       new NumberProperty("cy", 50, "y"),
       new NumberProperty("r", 10, "radius"),
-      new ColorProperty("fill", "red"),
     ].reduce((prev, curr) => ({ ...prev, [curr.name]: { ...curr } }), {});
 
     return { ...BaseFigureFactory.getBaseProperties(), ...currentProps };
