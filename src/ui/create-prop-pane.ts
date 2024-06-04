@@ -56,7 +56,7 @@ export const createPropPane = (figure: Figure) => {
       if (property.name === "z-index") {
         figuresContainer.refreshOrder();
       }
-      if (property.name) {
+      if (property.name === "name") {
         figuresContainer.refreshTree();
       }
       figure.refreshProperties();

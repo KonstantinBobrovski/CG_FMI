@@ -9,18 +9,27 @@ import {
 } from "../models/properties";
 
 let elementsCreated = 0;
+let figureCounters: { [key: string]: number } = {};
 export const onCreateElement = () => {
   return elementsCreated++;
 };
 export abstract class BaseFigureFactory<T extends Figure> {
   public static svgNS: string = "http://www.w3.org/2000/svg" as const;
-  private static figureCounters: { [key: string]: number } = {};
 
   abstract createFigure(): T;
 
   static getBaseProperties(figureType: string): Record<string, Property> {
+    let getFigureNumber = (figureType: string): number => {
+      if (!figureCounters[figureType]) {
+        figureCounters[figureType] = 1;
+      } else {
+        figureCounters[figureType]++;
+      }
+      return figureCounters[figureType];
+    }
+
     return [
-      new NameProperty("name", `${figureType}-${BaseFigureFactory.getFigureNumber(figureType)}`),
+      new NameProperty("name", `${figureType}-${getFigureNumber(figureType)}`),
       new PercentageProperty("opacity", 1),
       new NumberProperty("rotate", 0),
       new EnumProperty(
@@ -40,14 +49,5 @@ export abstract class BaseFigureFactory<T extends Figure> {
     ].reduce((prev, curr) => ({ ...prev, [curr.name]: { ...curr } }), {});
   }
 
-  private static getFigureNumber(figureType: string): number {
-    if (!BaseFigureFactory.figureCounters[figureType]) {
-      BaseFigureFactory.figureCounters[figureType] = 1;
-    } else {
-      BaseFigureFactory.figureCounters[figureType]++;
-    }
-    return BaseFigureFactory.figureCounters[figureType];
-  }
-  
   abstract getProperties(): Record<string, Property>;
 }
