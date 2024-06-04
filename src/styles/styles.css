@@ -4,6 +4,7 @@
 
 .canvas {
     width: 75%;
+    overflow: hidden;
 }
 
 .canvas svg {
