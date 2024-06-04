@@ -8,6 +8,7 @@ import { figuresContainer } from "./figures-container";
 
 import Figure from "./models/figure";
 import { createPropPane } from "./ui/create-prop-pane";
+import { Property } from "./models/properties";
 
 const figureFactories: BaseFigureFactory<Figure>[] = [
   new CircleFactory(),
@@ -69,6 +70,71 @@ const bootstrap = () => {
     image.src = svgDataUrl;
   });
 };
+
+const saveFunction = () => {
+  const figuresToSave = figuresContainer.figures.map((figure) => ({
+    type: figure.constructor.name,
+    properties: figure.properties,
+  }));
+  const link = document.createElement("a");
+  link.download = "figures.json";
+  const figuresJSON = JSON.stringify(figuresToSave);
+  link.href = `data:text/json;charset=utf-8,${encodeURIComponent(figuresJSON)}`;
+  link.click();
+};
+
+document
+  .querySelector("#download-json")!
+  .addEventListener("click", saveFunction);
+
+const loadFunction = () => {
+  const input = document.createElement("input");
+  input.type = "file";
+  input.accept = ".json";
+
+  input.addEventListener("change", (e) => {
+    const file = (e.target as HTMLInputElement).files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.readAsText(file);
+    reader.addEventListener("load", (e) => {
+      figuresContainer.figures = [];
+      const figures = JSON.parse((e.target as FileReader).result as string);
+      figures.forEach(
+        (figure: { type: string; properties: Record<string, Property> }) => {
+          const newFigure = figureFactories
+            .find(
+              (factory) => factory.constructor.name === figure.type + "Factory"
+            )
+            ?.createFigure();
+          if (!newFigure) {
+            alert("failed to import figure: " + figure.type);
+            return;
+          }
+          newFigure.properties = figure.properties;
+          newFigure.refreshProperties();
+          newFigure.svgElement.addEventListener("click", () =>
+            createPropPane(newFigure)
+          );
+          figuresContainer.add(newFigure);
+
+          dragAndDrop(newFigure);
+        }
+      );
+      figuresContainer.refreshOrder();
+    });
+  });
+  input.click();
+};
+
+document.querySelector("#import-json")!.addEventListener("click", loadFunction);
+
+document.addEventListener("keydown", (e) => {
+  if (e.key === "s" && (e.ctrlKey || e.metaKey)) {
+    e.preventDefault();
+    saveFunction();
+  }
+});
 
 const dragAndDrop = (figure: Figure) => {
   figure.svgElement.addEventListener("mousedown", (e) => {
