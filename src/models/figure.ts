@@ -1,6 +1,5 @@
-import { BaseFigureFactory } from "../factories/base-figure.factory";
 import { SvgInHtml } from "../types/svg";
-import { ColorProperty, NumberProperty, Property } from "./propertie";
+import { Property } from "./properties";
 abstract class Figure {
   public properties: Record<string, Property> = {};
   refreshProperties(): void {

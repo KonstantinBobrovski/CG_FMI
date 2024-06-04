@@ -1,17 +1,14 @@
 import { Circle } from "../models/circle";
-import Figure from "../models/figure";
 import {
   ColorProperty,
   NumberProperty,
-  PercentageProperty,
   Property,
-  StringProperty,
-} from "../models/propertie";
+} from "../models/properties";
 import { SvgInHtml } from "../types/svg";
-import { BaseFigureFactory, onCreateElement } from "./base-figure.factory";
+import { BaseFigureFactory } from "./base-figure.factory";
 
 export class CircleFactory implements BaseFigureFactory<Circle> {
-  createFigure(): Figure {
+  createFigure(): Circle {
     const element = document.createElementNS(
       BaseFigureFactory.svgNS,
       "circle"
@@ -27,7 +24,6 @@ export class CircleFactory implements BaseFigureFactory<Circle> {
       new NumberProperty("cx", 50, "x"),
       new NumberProperty("cy", 50, "y"),
       new NumberProperty("r", 10, "radius"),
-      new ColorProperty("fill", "red"),
     ].reduce((prev, curr) => ({ ...prev, [curr.name]: { ...curr } }), {});
 
     return { ...BaseFigureFactory.getBaseProperties(), ...currentProps };

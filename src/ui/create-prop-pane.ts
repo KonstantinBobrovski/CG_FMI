@@ -1,6 +1,6 @@
 import { figuresContainer } from "../figures-container";
 import Figure from "../models/figure";
-import { EnumProperty, Property, ValueType } from "../models/propertie";
+import { EnumProperty, ValueType } from "../models/properties";
 
 const propertiesTab = document.querySelector("#properties-tab")!;
 
