@@ -2,6 +2,7 @@ import Figure from "../models/figure";
 import {
   ColorProperty,
   EnumProperty,
+  NameProperty,
   NumberProperty,
   PercentageProperty,
   Property,
@@ -13,10 +14,13 @@ export const onCreateElement = () => {
 };
 export abstract class BaseFigureFactory<T extends Figure> {
   public static svgNS: string = "http://www.w3.org/2000/svg" as const;
+  private static figureCounters: { [key: string]: number } = {};
+
   abstract createFigure(): T;
 
-  static getBaseProperties(): Record<string, Property> {
+  static getBaseProperties(figureType: string): Record<string, Property> {
     return [
+      new NameProperty("name", `${figureType}-${BaseFigureFactory.getFigureNumber(figureType)}`),
       new PercentageProperty("opacity", 1),
       new NumberProperty("rotate", 0),
       new EnumProperty(
@@ -32,7 +36,18 @@ export abstract class BaseFigureFactory<T extends Figure> {
       new NumberProperty("translateY", 0, "Translate Y"),
       new ColorProperty("fill", "black"),
       new ColorProperty("stroke", "black"),
+
     ].reduce((prev, curr) => ({ ...prev, [curr.name]: { ...curr } }), {});
   }
+
+  private static getFigureNumber(figureType: string): number {
+    if (!BaseFigureFactory.figureCounters[figureType]) {
+      BaseFigureFactory.figureCounters[figureType] = 1;
+    } else {
+      BaseFigureFactory.figureCounters[figureType]++;
+    }
+    return BaseFigureFactory.figureCounters[figureType];
+  }
+  
   abstract getProperties(): Record<string, Property>;
 }

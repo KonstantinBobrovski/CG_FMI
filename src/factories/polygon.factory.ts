@@ -26,6 +26,6 @@ export class PolygonFactory extends BaseFigureFactory<Polygon> {
       new StringProperty("points", pointsValue),
     ].reduce((prev, curr) => ({ ...prev, [curr.name]: { ...curr } }), {});
 
-    return { ...BaseFigureFactory.getBaseProperties(), ...currentProps };
+    return { ...BaseFigureFactory.getBaseProperties("polygon"), ...currentProps };
   }
 }
