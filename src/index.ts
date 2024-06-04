@@ -8,6 +8,9 @@ import { figuresContainer } from "./figures-container";
 
 import Figure from "./models/figure";
 import { createPropPane } from "./ui/create-prop-pane";
+import { Property } from "./models/properties";
+import { bootstrapPersistence } from "./ui/bootstrap-persistence";
+import { SvgInHtml } from "./types/svg";
 
 const figureFactories: BaseFigureFactory<Figure>[] = [
   new CircleFactory(),
@@ -20,57 +23,9 @@ const figureFactories: BaseFigureFactory<Figure>[] = [
 const figuresChooser = document.querySelector("#figures-chooser")!;
 const template = document.querySelector("#input-template")!;
 const propertiesTab = document.querySelector("#properties-tab")!;
-const svgRoot = document.querySelector("#svg-root")!;
+const svgRoot: HTMLElement = document.querySelector("#svg-root")!;
 
-const bootstrap = () => {
-  figureFactories.forEach((figure) => {
-    const button = document.createElement("button");
-    button.textContent = figure.constructor.name;
-    button.addEventListener("click", () => {
-      const newFigure = figure.createFigure();
-      newFigure.svgElement.addEventListener("click", () =>
-        createPropPane(newFigure)
-      );
-      figuresContainer.add(newFigure);
-
-      dragAndDrop(newFigure);
-    });
-    figuresChooser?.appendChild(button);
-  });
-
-  document.querySelector("#download-png")!.addEventListener("click", () => {
-    const svgData = new XMLSerializer().serializeToString(svgRoot);
-    const svgDataBase64 = btoa(unescape(encodeURIComponent(svgData)));
-    const svgDataUrl = `data:image/svg+xml;charset=utf-8;base64,${svgDataBase64}`;
-
-    const image = new Image();
-
-    image.addEventListener("load", () => {
-      const rect = svgRoot.getBoundingClientRect();
-      const width = rect.width || 1000;
-      const height = rect.height || 500;
-
-      const canvas = document.createElement("canvas")!;
-
-      canvas.setAttribute("width", width.toString());
-      canvas.setAttribute("height", height.toString());
-
-      const context = canvas.getContext("2d")!;
-      context.drawImage(image, 0, 0, width, height);
-
-      const dataUrl = canvas.toDataURL("image/png");
-
-      const link = document.createElement("a");
-      link.download = "image.png";
-      link.href = dataUrl;
-      link.click();
-    });
-
-    image.src = svgDataUrl;
-  });
-};
-
-const dragAndDrop = (figure: Figure) => {
+const dragAndDropBootstrap = (figure: Figure) => {
   figure.svgElement.addEventListener("mousedown", (e) => {
     const startX = e.clientX;
     const startY = e.clientY;
@@ -105,5 +60,50 @@ const dragAndDrop = (figure: Figure) => {
     document.addEventListener("mouseup", stopMoving);
   });
 };
+
+const bootstrap = () => {
+  figureFactories.forEach((figure) => {
+    const button = document.createElement("button");
+    button.textContent = figure.constructor.name;
+    button.addEventListener("click", () => {
+      const newFigure = figure.createFigure();
+      newFigure.svgElement.addEventListener("click", () =>
+        createPropPane(newFigure)
+      );
+      figuresContainer.add(newFigure);
+
+      dragAndDropBootstrap(newFigure);
+    });
+    figuresChooser?.appendChild(button);
+  });
+  bootstrapPersistence(figureFactories, dragAndDropBootstrap);
+
+  svgRoot.addEventListener("wheel", zoom);
+};
+let scale = 1;
+const scaleFactor = 1.1;
+const zoom = (e: WheelEvent) => {
+  e.preventDefault();
+
+  const rect = svgRoot.getBoundingClientRect();
+  const offsetX = e.clientX - rect.left;
+  const offsetY = e.clientY - rect.top;
+
+  const oldScale = scale;
+
+  scale = e.deltaY < 0 ? scale * scaleFactor : scale / scaleFactor;
+
+  const originX = (offsetX / rect.width) * 100;
+  const originY = (offsetY / rect.height) * 100;
+
+  svgRoot.style.transformOrigin = `${originX}% ${originY}%`;
+  if (scale < 1) {
+    scale = 1;
+    svgRoot.style.transformOrigin = `${0}% ${0}%`;
+  }
+  svgRoot.style.transform = `scale(${scale})`;
+};
+
+svgRoot.addEventListener("wheel", zoom);
 
 bootstrap();
