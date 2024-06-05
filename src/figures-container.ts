@@ -50,6 +50,7 @@ export const figuresContainer = {
   add(figure: Figure) {
     figuresContainer.figures.push(figure);
     svgRoot.appendChild(figure.svgElement);
+    createPropPane(figure);
     this.refreshOrder();
   },
 };

@@ -5,9 +5,8 @@ import { RectangleFactory } from "./factories/rectangle.factory";
 import { PolygonFactory } from "./factories/polygon.factory";
 import { EllipseFactory } from "./factories/ellipse.factory";
 import { figuresContainer } from "./figures-container";
-
+import { closePropPane, createPropPane } from "./ui/create-prop-pane";
 import Figure from "./models/figure";
-import { createPropPane } from "./ui/create-prop-pane";
 import { bootstrapPersistence } from "./ui/bootstrap-persistence";
 import { Circle } from "./models/circle";
 import { NumberProperty } from "./models/properties";
@@ -121,9 +120,15 @@ searchInput.addEventListener('input', (e) => {
   if (figure) {
     createPropPane(figure);
   } else {
-    //!!! Add here the close prop pane from the other PR.
+    closePropPane();
   }
 });
+
+svgRoot.addEventListener('click', (e) => {
+  if ((e.target as HTMLElement) === svgRoot) {
+    closePropPane();
+  }
+})
 
 bootstrap();
 
