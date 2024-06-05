@@ -182,5 +182,6 @@ document.addEventListener('keydown', (event) => {
     figuresContainer.figures = figuresContainer.figures.filter((f) => f !== selectedFigure);
     selectedFigure = null;
     figuresContainer.refreshOrder();
+    closePropPane();
   }
 });

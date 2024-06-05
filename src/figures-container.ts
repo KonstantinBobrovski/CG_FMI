@@ -1,5 +1,5 @@
 import Figure from "./models/figure";
-import { createPropPane } from "./ui/create-prop-pane";
+import { closePropPane, createPropPane } from "./ui/create-prop-pane";
 const svgRoot = document.querySelector("#svg-root")!;
 const treemap = document.querySelector("#treemap-figures")!;
 export const figuresContainer = {
@@ -43,7 +43,13 @@ export const figuresContainer = {
       });
       li.appendChild(deleteButton);
 
-      li.addEventListener("click", () => createPropPane(fig));
+      li.addEventListener("click", (e) => {
+        if (e.target === deleteButton) {
+          closePropPane();
+        } else {
+          createPropPane(fig)
+        }
+      });
       svgRoot.appendChild(fig.svgElement);
     });
   },
