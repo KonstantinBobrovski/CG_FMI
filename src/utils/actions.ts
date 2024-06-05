@@ -33,14 +33,24 @@ export function Copy(selectedFigure: Figure | null): Figure | null {
 
         if (figureFactory) {
             copiedFigure = figureFactory.createFigure();
+            Object.keys(selectedFigure.properties).map((key) => copiedFigure!.properties[key] = Object.create({ ...selectedFigure!.properties[key] }));
+
+            Object.keys(selectedFigure.properties).map((key) => {
+                copiedFigure!.properties[key] = { ...selectedFigure!.properties[key] } as any;
+                Object.setPrototypeOf(copiedFigure!.properties[key], Object.getPrototypeOf(selectedFigure!.properties[key]));
+            });
+
             copiedFigure.properties["translateX"] = new NumberProperty("translateX", 0, "Translate X");
             copiedFigure.properties["translateY"] = new NumberProperty("translateY", 0, "Translate Y");
-            copiedFigure.properties["fill"] = new ColorProperty("fill", selectedFigure.properties["fill"].value);
-            copiedFigure.properties["stroke"] = new ColorProperty("stroke", selectedFigure.properties["stroke"].value);
 
             // add needed properties
             copiedFigure.refreshProperties();
         }
+
+        copiedFigure?.svgElement.addEventListener("click", () => {
+            createPropPane(selectedFigure!);
+            selectedFigure = copiedFigure;
+          });
     }
     return copiedFigure;
 }
@@ -49,7 +59,7 @@ export function Paste(copiedFigure: Figure | null): void {
     if (copiedFigure && !figuresContainer.figures.includes(copiedFigure)) {
         figuresContainer.add(copiedFigure!);
         dragAndDropBootstrap(copiedFigure!);
-    } else if(copiedFigure) {
+    } else if (copiedFigure) {
         copiedFigure = Copy(copiedFigure);
         Paste(copiedFigure);
     }

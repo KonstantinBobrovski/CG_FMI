@@ -76,7 +76,6 @@ const bootstrap = () => {
     button.textContent = figure.constructor.name;
     button.addEventListener("click", () => {
       const newFigure = figure.createFigure();
-      selectedFigure = newFigure;
       newFigure.svgElement.addEventListener("click", () => {
         selectedFigure = newFigure;
         createPropPane(newFigure);
