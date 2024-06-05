@@ -1,6 +1,5 @@
 import { Circle } from "../models/circle";
 import {
-  ColorProperty,
   NumberProperty,
   Property,
 } from "../models/properties";
