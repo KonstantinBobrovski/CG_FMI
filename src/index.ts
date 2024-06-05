@@ -10,7 +10,7 @@ import Figure from "./models/figure";
 import { createPropPane } from "./ui/create-prop-pane";
 import { bootstrapPersistence } from "./ui/bootstrap-persistence";
 import { Circle } from "./models/circle";
-import { NumberProperty, Property } from "./models/properties";
+import { NumberProperty } from "./models/properties";
 import { Ellipse } from "./models/ellipse";
 import { Line } from "./models/line";
 import { Rectangle } from "./models/rectangle";
