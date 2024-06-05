@@ -153,6 +153,7 @@ document.addEventListener('keydown', (event) => {
         copiedFigure.refreshProperties();
 
         copiedFigure.svgElement.addEventListener("click", () => {
+          selectedFigure = copiedFigure;
           createPropPane(copiedFigure!);
         });
       }
