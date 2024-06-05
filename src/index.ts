@@ -8,12 +8,7 @@ import { figuresContainer } from "./figures-container";
 import { closePropPane, createPropPane } from "./ui/create-prop-pane";
 import Figure from "./models/figure";
 import { bootstrapPersistence } from "./ui/bootstrap-persistence";
-import { Circle } from "./models/circle";
-import { NumberProperty } from "./models/properties";
-import { Ellipse } from "./models/ellipse";
-import { Line } from "./models/line";
-import { Rectangle } from "./models/rectangle";
-import { Polygon } from "./models/polygon";
+import { Copy, Delete, Paste } from "./utils/actions";
 
 const figureFactories: BaseFigureFactory<Figure>[] = [
   new CircleFactory(),
@@ -29,9 +24,17 @@ const propertiesTab = document.querySelector("#properties-tab")!;
 const svgRoot: HTMLElement = document.querySelector("#svg-root")!;
 const searchInput: HTMLInputElement = document.querySelector("#search-input")!;
 
+const tooltip = document.createElement('div');
+tooltip.style.position = 'absolute';
+tooltip.style.background = '#fff';
+tooltip.style.border = '1px solid #000';
+tooltip.style.padding = '5px';
+tooltip.style.display = 'none';
+document.body.appendChild(tooltip);
+
 let selectedFigure: Figure | null = null;
 let copiedFigure: Figure | null = null;
-const dragAndDropBootstrap = (figure: Figure) => {
+export const dragAndDropBootstrap = (figure: Figure) => {
   figure.svgElement.addEventListener("mousedown", (e) => {
     const startX = e.clientX;
     const startY = e.clientY;
@@ -87,6 +90,7 @@ const bootstrap = () => {
 
   svgRoot.addEventListener("wheel", zoom);
 };
+
 let scale = 1;
 const scaleFactor = 1.1;
 const zoom = (e: WheelEvent) => {
@@ -95,8 +99,6 @@ const zoom = (e: WheelEvent) => {
   const rect = svgRoot.getBoundingClientRect();
   const offsetX = e.clientX - rect.left;
   const offsetY = e.clientY - rect.top;
-
-  const oldScale = scale;
 
   scale = e.deltaY < 0 ? scale * scaleFactor : scale / scaleFactor;
 
@@ -127,61 +129,67 @@ searchInput.addEventListener('input', (e) => {
 svgRoot.addEventListener('click', (e) => {
   if ((e.target as HTMLElement) === svgRoot) {
     closePropPane();
+    tooltip.style.display = 'none';
   }
-})
+});
+
+svgRoot.addEventListener('contextmenu', (e) => {
+  e.preventDefault();
+  const mouseX = e.clientX;
+  const mouseY = e.clientY;
+
+  tooltip.style.left = mouseX + 'px';
+  tooltip.style.top = mouseY + 'px';
+  tooltip.style.display = 'flex';
+  tooltip.style.flexDirection = 'column';
+  tooltip.style.gap = '10px';
+
+  const insertButton = document.createElement('button');
+  insertButton.textContent = 'Insert';
+  insertButton.addEventListener('click', () => {
+    //add new figure
+  });
+
+  const copyButton = document.createElement('button');
+  copyButton.textContent = 'Copy';
+  copyButton.addEventListener('click', () => {
+    if (selectedFigure) {
+      copiedFigure = Copy(selectedFigure);
+    }
+    tooltip.style.display = 'none';
+  });
+
+  const pasteButton = document.createElement('button');
+  pasteButton.textContent = 'Paste';
+  pasteButton.addEventListener('click', () => {
+    Paste(copiedFigure);
+    tooltip.style.display = 'none';
+  });
+
+  const deleteButton = document.createElement('button');
+  deleteButton.textContent = 'Delete';
+  deleteButton.addEventListener('click', () => {
+    Delete(selectedFigure);
+    tooltip.style.display = 'none';
+  });
+
+  tooltip.innerHTML = '';
+  tooltip.appendChild(insertButton);
+  tooltip.appendChild(copyButton);
+  tooltip.appendChild(pasteButton);
+  tooltip.appendChild(deleteButton);
+});
 
 bootstrap();
 
-// Copy
 document.addEventListener('keydown', (event) => {
-  if (event.ctrlKey && event.key === 'c') {
-    if (selectedFigure) {
-      let figureFactory = null;
-
-      if (selectedFigure instanceof Circle) {
-        figureFactory = new CircleFactory();
-      } else if (selectedFigure instanceof Ellipse) {
-        figureFactory = new EllipseFactory();
-      } else if (selectedFigure instanceof Rectangle) {
-        figureFactory = new RectangleFactory();
-      } else if (selectedFigure instanceof Line) {
-        figureFactory = new LineFactory();
-      } else if (selectedFigure instanceof Polygon) {
-        figureFactory = new PolygonFactory();
-      }
-
-      if (figureFactory) {
-        copiedFigure = figureFactory.createFigure();
-        copiedFigure.properties = {...selectedFigure.properties, ...figureFactory.getProperties()};
-        copiedFigure.properties["translateX"] = new NumberProperty("translateX", 0, "Translate X");
-        copiedFigure.properties["translateY"] = new NumberProperty("translateY", 0, "Translate Y");
-        copiedFigure.refreshProperties();
-
-        copiedFigure.svgElement.addEventListener("click", () => {
-          selectedFigure = copiedFigure;
-          createPropPane(copiedFigure!);
-        });
-      }
+  if (event.ctrlKey) {
+    if (event.key === 'c') {
+      copiedFigure = Copy(selectedFigure);
+    } else if (event.key === 'v') {
+      Paste(copiedFigure);
     }
-  }
-});
-
-// Paste
-document.addEventListener('keydown', (event) => {
-  if (event.ctrlKey && event.key === 'v') {
-    if (copiedFigure) {
-      figuresContainer.add(copiedFigure!);
-      dragAndDropBootstrap(copiedFigure!);
-    }
-  }
-});
-
-// Delete
-document.addEventListener('keydown', (event) => {
-  if (event.key === 'Delete') {
-    figuresContainer.figures = figuresContainer.figures.filter((f) => f !== selectedFigure);
-    selectedFigure = null;
-    figuresContainer.refreshOrder();
-    closePropPane();
+  } else if (event.key === 'Delete') {
+    Delete(selectedFigure);
   }
 });
