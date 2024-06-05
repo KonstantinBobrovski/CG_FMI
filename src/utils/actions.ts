@@ -10,7 +10,7 @@ import { Ellipse } from "../models/ellipse";
 import Figure from "../models/figure";
 import { Line } from "../models/line";
 import { Polygon } from "../models/polygon";
-import { NumberProperty } from "../models/properties";
+import { ColorProperty, NumberProperty } from "../models/properties";
 import { Rectangle } from "../models/rectangle";
 import { closePropPane, createPropPane } from "../ui/create-prop-pane";
 
@@ -33,15 +33,13 @@ export function Copy(selectedFigure: Figure | null): Figure | null {
 
         if (figureFactory) {
             copiedFigure = figureFactory.createFigure();
-            copiedFigure.properties = { ...figureFactory.getProperties(), ...selectedFigure.properties };
             copiedFigure.properties["translateX"] = new NumberProperty("translateX", 0, "Translate X");
             copiedFigure.properties["translateY"] = new NumberProperty("translateY", 0, "Translate Y");
-            copiedFigure.refreshProperties();
+            copiedFigure.properties["fill"] = new ColorProperty("fill", selectedFigure.properties["fill"].value);
+            copiedFigure.properties["stroke"] = new ColorProperty("stroke", selectedFigure.properties["stroke"].value);
 
-            copiedFigure.svgElement.addEventListener("click", () => {
-                selectedFigure = copiedFigure;
-                createPropPane(copiedFigure!);
-            });
+            // add needed properties
+            copiedFigure.refreshProperties();
         }
     }
     return copiedFigure;

@@ -78,6 +78,7 @@ const bootstrap = () => {
       const newFigure = figure.createFigure();
       selectedFigure = newFigure;
       newFigure.svgElement.addEventListener("click", () => {
+        selectedFigure = newFigure;
         createPropPane(newFigure);
       });
       figuresContainer.add(newFigure);
@@ -155,6 +156,10 @@ svgRoot.addEventListener('contextmenu', (e) => {
   copyButton.addEventListener('click', () => {
     if (selectedFigure) {
       copiedFigure = Copy(selectedFigure);
+      copiedFigure?.svgElement.addEventListener("click", () => {
+        createPropPane(selectedFigure!);
+        selectedFigure = copiedFigure;
+      });
     }
     tooltip.style.display = 'none';
   });
@@ -186,6 +191,10 @@ document.addEventListener('keydown', (event) => {
   if (event.ctrlKey) {
     if (event.key === 'c') {
       copiedFigure = Copy(selectedFigure);
+      copiedFigure?.svgElement.addEventListener("click", () => {
+        selectedFigure = copiedFigure;
+        createPropPane(copiedFigure!);
+      });
     } else if (event.key === 'v') {
       Paste(copiedFigure);
     }
