@@ -147,8 +147,7 @@ document.addEventListener('keydown', (event) => {
 
       if (figureFactory) {
         copiedFigure = figureFactory.createFigure();
-
-        copiedFigure.properties = { ...selectedFigure.properties };
+        copiedFigure.properties = {...selectedFigure.properties, ...figureFactory.getProperties()};
         copiedFigure.properties["translateX"] = new NumberProperty("translateX", 0, "Translate X");
         copiedFigure.properties["translateY"] = new NumberProperty("translateY", 0, "Translate Y");
         copiedFigure.refreshProperties();
