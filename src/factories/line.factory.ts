@@ -29,6 +29,6 @@ export class LineFactory extends BaseFigureFactory<Line> {
       new NumberProperty("z-index", onCreateElement(), "z-index"),
     ].reduce((prev, curr) => ({ ...prev, [curr.name]: { ...curr } }), {});
     
-    return { ...Object.fromEntries(Object.entries(BaseFigureFactory.getBaseProperties()).filter(([key]) => key !== 'fill')), ...currentProps };
+    return { ...Object.fromEntries(Object.entries(BaseFigureFactory.getBaseProperties("line")).filter(([key]) => key !== 'fill')), ...currentProps };
   }
 }

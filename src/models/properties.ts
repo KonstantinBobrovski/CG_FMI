@@ -98,3 +98,14 @@ export class EnumProperty extends Property {
     return this.allowedValues.includes(value);
   }
 }
+
+export class NameProperty extends Property {
+  constructor(name: string, defaultValue: string) {
+    super(name, ValueType.String);
+    this.value = defaultValue;
+  }
+
+  validate(value: string): boolean {
+    return typeof value === "string";
+  }
+}
