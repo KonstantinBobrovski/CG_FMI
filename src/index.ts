@@ -11,6 +11,10 @@ import { createPropPane } from "./ui/create-prop-pane";
 import { bootstrapPersistence } from "./ui/bootstrap-persistence";
 import { Circle } from "./models/circle";
 import { NumberProperty, Property } from "./models/properties";
+import { Ellipse } from "./models/ellipse";
+import { Line } from "./models/line";
+import { Rectangle } from "./models/rectangle";
+import { Polygon } from "./models/polygon";
 
 const figureFactories: BaseFigureFactory<Figure>[] = [
   new CircleFactory(),
@@ -119,6 +123,14 @@ document.addEventListener('keydown', (event) => {
 
       if (selectedFigure instanceof Circle) {
         figureFactory = new CircleFactory();
+      } else if (selectedFigure instanceof Ellipse) {
+        figureFactory = new EllipseFactory();
+      } else if (selectedFigure instanceof Rectangle) {
+        figureFactory = new RectangleFactory();
+      } else if (selectedFigure instanceof Line) {
+        figureFactory = new LineFactory();
+      } else if (selectedFigure instanceof Polygon) {
+        figureFactory = new PolygonFactory();
       }
 
       if (figureFactory) {
