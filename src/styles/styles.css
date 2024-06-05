@@ -45,6 +45,17 @@
     margin-right: 5px;
 }
 
+#properties-tab-wrapper{
+    display: flex;
+    flex-direction: column;
+}
+
+#properties-tab-header{
+    display: flex;
+    align-items: center;
+    gap: 10px;
+} 
+
 .delete-button {
     color: red;
 }
