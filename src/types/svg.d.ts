@@ -1,1 +1,1 @@
-export type SvgInHtml = HTMLElement & SVGElement;
+export type SvgInHtml = HTMLElement & SVGElement & SVGGraphicsElement;

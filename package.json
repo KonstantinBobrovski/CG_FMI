@@ -6,7 +6,8 @@
   "scripts": {
     "build": "webpack",
     "dev": "webpack serve --watch",
-    "lint": "eslint -c .ts",
+    "lint": "eslint",
+    "lint-fix": "eslint --fix",
     "start": "live-server"
   },
   "author": "",

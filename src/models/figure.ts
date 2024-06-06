@@ -17,7 +17,7 @@ abstract class Figure {
 
     const rotate = this.properties["rotate"];
     const rotateOrigin = this.properties["transform-origin"];
-    this.svgElement.style.transformOrigin = rotateOrigin as any;
+    this.svgElement.style.transformOrigin = rotateOrigin.value;
 
     if (rotate && rotateOrigin) {
       transforms.push(`rotate(${rotate.value})`);

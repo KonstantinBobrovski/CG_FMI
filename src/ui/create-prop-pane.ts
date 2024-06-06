@@ -18,10 +18,9 @@ export const createPropPane = (figure: Figure) => {
     label.htmlFor = property.name;
     wrapper.appendChild(label);
     propertiesTab.appendChild(wrapper);
-    let inputElement = document.createElement("input") as HTMLElement & {
-      value: string;
-      type: string;
-    };
+    let inputElement = document.createElement("input") as
+      | HTMLInputElement
+      | HTMLSelectElement;
 
     const inputTypeMap = {
       [ValueType.Number]: "number",
@@ -42,12 +41,15 @@ export const createPropPane = (figure: Figure) => {
         inputElement.value = (property as EnumProperty).value;
         break;
       case ValueType.Percent:
-        (inputElement as any).step = 0.01;
-        inputElement.type = inputTypeMap[property.valueType];
+        (inputElement as HTMLInputElement).step = "0.01";
+        (inputElement as HTMLInputElement).type =
+          inputTypeMap[property.valueType];
         inputElement.value = property.value;
+
         break;
       default:
-        inputElement.type = inputTypeMap[property.valueType];
+        (inputElement as HTMLInputElement).type =
+          inputTypeMap[property.valueType];
         inputElement.value = property.value;
     }
     wrapper.appendChild(inputElement);

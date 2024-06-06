@@ -1,23 +1,12 @@
 import { dragAndDropBootstrap } from "..";
-import { BaseFigureFactory } from "../factories/base-figure.factory";
-import { CircleFactory } from "../factories/circle.factory";
-import { EllipseFactory } from "../factories/ellipse.factory";
-import { LineFactory } from "../factories/line.factory";
-import { PolygonFactory } from "../factories/polygon.factory";
-import { RectangleFactory } from "../factories/rectangle.factory";
+
 import { figuresContainer } from "../figures-container";
-import { Circle } from "../models/circle";
-import { Ellipse } from "../models/ellipse";
+
 import Figure from "../models/figure";
-import { Line } from "../models/line";
-import { Polygon } from "../models/polygon";
-import {
-  ColorProperty,
-  NameProperty,
-  NumberProperty,
-} from "../models/properties";
-import { Rectangle } from "../models/rectangle";
-import { closePropPane, createPropPane } from "../ui/create-prop-pane";
+
+import { NameProperty, NumberProperty, Property } from "../models/properties";
+
+import { closePropPane } from "../ui/create-prop-pane";
 import { figureFactories } from "../factories";
 export function Copy(selectedFigure: Figure): Figure | null {
   let copiedFigure: Figure | null = null;
@@ -34,9 +23,14 @@ export function Copy(selectedFigure: Figure): Figure | null {
   copiedFigure = figureFactory.createFigure();
   copiedFigure!.properties = {};
   Object.keys(selectedFigure.properties).map((key) => {
-    copiedFigure!.properties[key] = {
+    const property = {
       ...selectedFigure!.properties[key],
-    } as any;
+    };
+    const withProto = Object.setPrototypeOf(
+      property,
+      Object.getPrototypeOf(selectedFigure!.properties[key])
+    ) as Property;
+    copiedFigure!.properties[key] = withProto;
   });
   copiedFigure!.properties["name"] = new NameProperty(
     "name",

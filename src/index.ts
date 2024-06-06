@@ -1,18 +1,13 @@
-import { BaseFigureFactory } from "./factories/base-figure.factory";
-import { CircleFactory } from "./factories/circle.factory";
-import { LineFactory } from "./factories/line.factory";
-import { RectangleFactory } from "./factories/rectangle.factory";
-import { PolygonFactory } from "./factories/polygon.factory";
-import { EllipseFactory } from "./factories/ellipse.factory";
 import { figuresContainer } from "./figures-container";
 import { closePropPane, createPropPane } from "./ui/create-prop-pane";
 import Figure from "./models/figure";
 import { bootstrapPersistence } from "./ui/bootstrap-persistence";
 import { Copy, Delete, Paste } from "./utils/actions";
 import { figureFactories } from "./factories";
+import { SvgInHtml } from "./types/svg";
 
 const figuresChooser = document.querySelector("#figures-chooser")!;
-const svgRoot: HTMLElement = document.querySelector("#svg-root")!;
+const svgRoot: SvgInHtml = document.querySelector("#svg-root")!;
 const searchInput: HTMLInputElement = document.querySelector("#search-input")!;
 
 const tooltip: HTMLElement = document.querySelector("#tooltip")!;
@@ -28,10 +23,10 @@ export const dragAndDropBootstrap = (figure: Figure) => {
     const startTranslateX = +figure.properties["translateX"]?.value || 0;
 
     const moveAt = (e: MouseEvent) => {
-      let currentX = e.clientX;
-      let currentY = e.clientY;
+      const currentX = e.clientX;
+      const currentY = e.clientY;
 
-      const ctm = (svgRoot as any).getScreenCTM();
+      const ctm = svgRoot.getScreenCTM()!;
 
       const rotate = +figure.properties["rotate"].value;
       const radians = rotate * (Math.PI / 180);
@@ -46,7 +41,7 @@ export const dragAndDropBootstrap = (figure: Figure) => {
       figure.properties["translateY"].value = startTranslateY + rotatedDy + "";
       figure.refreshProperties();
     };
-    const stopMoving = (e: MouseEvent) => {
+    const stopMoving = () => {
       document.removeEventListener("mousemove", moveAt);
       document.removeEventListener("mouseup", stopMoving);
     };

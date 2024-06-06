@@ -1,4 +1,3 @@
-import { BaseFigureFactory } from "../factories/base-figure.factory";
 import { figuresContainer } from "../figures-container";
 import Figure from "../models/figure";
 import { Property } from "../models/properties";

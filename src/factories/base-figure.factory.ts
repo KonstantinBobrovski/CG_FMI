@@ -9,7 +9,7 @@ import {
 } from "../models/properties";
 
 let elementsCreated = 0;
-let figureCounters: { [key: string]: number } = {};
+const figureCounters: { [key: string]: number } = {};
 export const onCreateElement = () => {
   return elementsCreated++;
 };
@@ -19,7 +19,7 @@ export abstract class BaseFigureFactory<T extends Figure> {
   abstract createFigure(): T;
 
   static getBaseProperties(figureType: string): Record<string, Property> {
-    let getFigureNumber = (figureType: string): number => {
+    const getFigureNumber = (figureType: string): number => {
       if (!figureCounters[figureType]) {
         figureCounters[figureType] = 1;
       } else {
