@@ -1,45 +1,47 @@
 <!DOCTYPE html>
 <html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Computer Graphics Project</title>
+    <link rel="stylesheet" href="./styles/styles.css" />
+  </head>
 
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Computer Graphics Project</title>
-  <link rel="stylesheet" href="./styles/styles.css" />
-</head>
-
-<body>
-  <div class="content">
-    <div class="canvas">
-      <svg id="svg-root" viewBox="0 0 100 100"></svg>
-      <div id="tooltip"></div>
-    </div>
-    <div class="sidebar">
-      <h2>Sidebar</h2>
-      <div>
-        <button id="download-png">Download as PNG</button>
-        <button id="download-json">Save</button>
-        <button id="import-json">Load</button>
+  <body>
+    <div class="content">
+      <div class="canvas">
+        <svg id="svg-root" viewBox="0 0 100 100"></svg>
+        <div id="tooltip"></div>
       </div>
-      <div id="treemap-figures-wrapper">
-        <h3>Figures</h3>
-        <ul id="treemap-figures"></ul>
-      </div>
-      <div id="figures-chooser-wrapper">
-        <h3>Create new figure</h3>
-        <div id="figures-chooser"></div>
-      </div>
-      <div id="properties-tab-wrapper">
-        <div id="properties-tab-header">
-          <h3>Properties</h3>
-          <input type="text" id="search-input" placeholder="Search figure by name...">
+      <div class="sidebar">
+        <h2>Sidebar</h2>
+        <div>
+          <button id="download-png">Download as PNG</button>
+          <button id="download-json">Save</button>
+          <button id="import-json">Load</button>
         </div>
-        <div id="properties-tab"></div>
+        <div id="treemap-figures-wrapper">
+          <h3>Figures</h3>
+          <ul id="treemap-figures"></ul>
+        </div>
+        <div id="figures-chooser-wrapper">
+          <h3>Create new figure</h3>
+          <div id="figures-chooser"></div>
+        </div>
+        <div id="properties-tab-wrapper">
+          <div id="properties-tab-header">
+            <h3>Properties</h3>
+            <input
+              type="text"
+              id="search-input"
+              placeholder="Search figure by name..."
+            />
+          </div>
+          <div id="properties-tab"></div>
+        </div>
       </div>
     </div>
-  </div>
 
-  <script src="./bundle.js"></script>
-</body>
-
+    <script src="./bundle.js"></script>
+  </body>
 </html>

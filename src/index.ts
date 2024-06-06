@@ -9,28 +9,13 @@ import { closePropPane, createPropPane } from "./ui/create-prop-pane";
 import Figure from "./models/figure";
 import { bootstrapPersistence } from "./ui/bootstrap-persistence";
 import { Copy, Delete, Paste } from "./utils/actions";
-
-const figureFactories: BaseFigureFactory<Figure>[] = [
-  new CircleFactory(),
-  new RectangleFactory(),
-  new LineFactory(),
-  new PolygonFactory(),
-  new EllipseFactory(),
-];
+import { figureFactories } from "./factories";
 
 const figuresChooser = document.querySelector("#figures-chooser")!;
-const template = document.querySelector("#input-template")!;
-const propertiesTab = document.querySelector("#properties-tab")!;
 const svgRoot: HTMLElement = document.querySelector("#svg-root")!;
 const searchInput: HTMLInputElement = document.querySelector("#search-input")!;
 
-const tooltip = document.createElement('div');
-tooltip.style.position = 'absolute';
-tooltip.style.background = '#fff';
-tooltip.style.border = '1px solid #000';
-tooltip.style.padding = '5px';
-tooltip.style.display = 'none';
-document.body.appendChild(tooltip);
+const tooltip: HTMLElement = document.querySelector("#tooltip")!;
 
 let selectedFigure: Figure | null = null;
 let copiedFigure: Figure | null = null;
@@ -86,7 +71,7 @@ const bootstrap = () => {
     });
     figuresChooser?.appendChild(button);
   });
-  bootstrapPersistence(figureFactories, dragAndDropBootstrap);
+  bootstrapPersistence(dragAndDropBootstrap);
 
   svgRoot.addEventListener("wheel", zoom);
 };
@@ -115,10 +100,12 @@ const zoom = (e: WheelEvent) => {
 
 svgRoot.addEventListener("wheel", zoom);
 
-searchInput.addEventListener('input', (e) => {
+searchInput.addEventListener("input", (e) => {
   const searchTerm = (e.target as HTMLInputElement).value.trim();
 
-  const figure = figuresContainer.figures.find((figure) => figure.properties.name.value.trim() === searchTerm);
+  const figure = figuresContainer.figures.find(
+    (figure) => figure.properties.name.value.trim() === searchTerm
+  );
   if (figure) {
     createPropPane(figure);
   } else {
@@ -126,33 +113,33 @@ searchInput.addEventListener('input', (e) => {
   }
 });
 
-svgRoot.addEventListener('click', (e) => {
+svgRoot.addEventListener("click", (e) => {
   if ((e.target as HTMLElement) === svgRoot) {
     closePropPane();
-    tooltip.style.display = 'none';
+    tooltip.style.display = "none";
   }
 });
 
-svgRoot.addEventListener('contextmenu', (e) => {
+svgRoot.addEventListener("contextmenu", (e) => {
   e.preventDefault();
   const mouseX = e.clientX;
   const mouseY = e.clientY;
 
-  tooltip.style.left = mouseX + 'px';
-  tooltip.style.top = mouseY + 'px';
-  tooltip.style.display = 'flex';
-  tooltip.style.flexDirection = 'column';
-  tooltip.style.gap = '10px';
+  tooltip.style.left = mouseX + "px";
+  tooltip.style.top = mouseY + "px";
+  tooltip.style.display = "flex";
+  tooltip.style.flexDirection = "column";
+  tooltip.style.gap = "10px";
 
-  const insertButton = document.createElement('button');
-  insertButton.textContent = 'Insert';
-  insertButton.addEventListener('click', () => {
+  const insertButton = document.createElement("button");
+  insertButton.textContent = "Insert";
+  insertButton.addEventListener("click", () => {
     //add new figure
   });
 
-  const copyButton = document.createElement('button');
-  copyButton.textContent = 'Copy';
-  copyButton.addEventListener('click', () => {
+  const copyButton = document.createElement("button");
+  copyButton.textContent = "Copy";
+  copyButton.addEventListener("click", () => {
     if (selectedFigure) {
       copiedFigure = Copy(selectedFigure);
       copiedFigure?.svgElement.addEventListener("click", () => {
@@ -160,24 +147,24 @@ svgRoot.addEventListener('contextmenu', (e) => {
         selectedFigure = copiedFigure;
       });
     }
-    tooltip.style.display = 'none';
+    tooltip.style.display = "none";
   });
 
-  const pasteButton = document.createElement('button');
-  pasteButton.textContent = 'Paste';
-  pasteButton.addEventListener('click', () => {
+  const pasteButton = document.createElement("button");
+  pasteButton.textContent = "Paste";
+  pasteButton.addEventListener("click", () => {
     Paste(copiedFigure);
-    tooltip.style.display = 'none';
+    tooltip.style.display = "none";
   });
 
-  const deleteButton = document.createElement('button');
-  deleteButton.textContent = 'Delete';
-  deleteButton.addEventListener('click', () => {
+  const deleteButton = document.createElement("button");
+  deleteButton.textContent = "Delete";
+  deleteButton.addEventListener("click", () => {
     Delete(selectedFigure);
-    tooltip.style.display = 'none';
+    tooltip.style.display = "none";
   });
 
-  tooltip.innerHTML = '';
+  tooltip.innerHTML = "";
   tooltip.appendChild(insertButton);
   tooltip.appendChild(copyButton);
   tooltip.appendChild(pasteButton);
@@ -186,18 +173,26 @@ svgRoot.addEventListener('contextmenu', (e) => {
 
 bootstrap();
 
-document.addEventListener('keydown', (event) => {
-  if (event.ctrlKey) {
-    if (event.key === 'c') {
-      copiedFigure = Copy(selectedFigure);
-      copiedFigure?.svgElement.addEventListener("click", () => {
-        selectedFigure = copiedFigure;
-        createPropPane(copiedFigure!);
-      });
-    } else if (event.key === 'v') {
-      Paste(copiedFigure);
-    }
-  } else if (event.key === 'Delete') {
+document.addEventListener("keydown", (event) => {
+  if (event.key === "Delete") {
     Delete(selectedFigure);
+    return;
   }
+  if (!event.ctrlKey) {
+    return;
+  }
+  if (event.key === "v") {
+    Paste(copiedFigure);
+    return;
+  }
+  if (event.key !== "c" || !selectedFigure) return;
+
+  copiedFigure = Copy(selectedFigure);
+  const temp = copiedFigure;
+  temp?.svgElement.addEventListener("click", () => {
+    console.log({ copiedFigure });
+
+    selectedFigure = temp;
+    createPropPane(temp!);
+  });
 });

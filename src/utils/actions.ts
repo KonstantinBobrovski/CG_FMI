@@ -1,4 +1,5 @@
 import { dragAndDropBootstrap } from "..";
+import { BaseFigureFactory } from "../factories/base-figure.factory";
 import { CircleFactory } from "../factories/circle.factory";
 import { EllipseFactory } from "../factories/ellipse.factory";
 import { LineFactory } from "../factories/line.factory";
@@ -10,63 +11,69 @@ import { Ellipse } from "../models/ellipse";
 import Figure from "../models/figure";
 import { Line } from "../models/line";
 import { Polygon } from "../models/polygon";
-import { ColorProperty, NumberProperty } from "../models/properties";
+import {
+  ColorProperty,
+  NameProperty,
+  NumberProperty,
+} from "../models/properties";
 import { Rectangle } from "../models/rectangle";
 import { closePropPane, createPropPane } from "../ui/create-prop-pane";
+import { figureFactories } from "../factories";
+export function Copy(selectedFigure: Figure): Figure | null {
+  let copiedFigure: Figure | null = null;
 
-export function Copy(selectedFigure: Figure | null): Figure | null {
-    let copiedFigure: Figure | null = null;
-    if (selectedFigure) {
-        let figureFactory = null;
+  const figureFactory = figureFactories.find(
+    (factory) =>
+      factory.constructor.name === selectedFigure.constructor.name + "Factory"
+  );
 
-        if (selectedFigure instanceof Circle) {
-            figureFactory = new CircleFactory();
-        } else if (selectedFigure instanceof Ellipse) {
-            figureFactory = new EllipseFactory();
-        } else if (selectedFigure instanceof Rectangle) {
-            figureFactory = new RectangleFactory();
-        } else if (selectedFigure instanceof Line) {
-            figureFactory = new LineFactory();
-        } else if (selectedFigure instanceof Polygon) {
-            figureFactory = new PolygonFactory();
-        }
+  if (!figureFactory) {
+    return null;
+  }
 
-        if (figureFactory) {
-            copiedFigure = figureFactory.createFigure();
-            Object.keys(selectedFigure.properties).map((key) => copiedFigure!.properties[key] = Object.create({ ...selectedFigure!.properties[key] }));
+  copiedFigure = figureFactory.createFigure();
+  copiedFigure!.properties = {};
+  Object.keys(selectedFigure.properties).map((key) => {
+    copiedFigure!.properties[key] = {
+      ...selectedFigure!.properties[key],
+    } as any;
+  });
+  copiedFigure!.properties["name"] = new NameProperty(
+    "name",
+    `${copiedFigure.properties["name"].value}-copy`
+  );
+  copiedFigure.properties["translateX"] = new NumberProperty(
+    "translateX",
+    0,
+    "Translate X"
+  );
+  copiedFigure.properties["translateY"] = new NumberProperty(
+    "translateY",
+    0,
+    "Translate Y"
+  );
 
-            Object.keys(selectedFigure.properties).map((key) => {
-                copiedFigure!.properties[key] = { ...selectedFigure!.properties[key] } as any;
-                Object.setPrototypeOf(copiedFigure!.properties[key], Object.getPrototypeOf(selectedFigure!.properties[key]));
-            });
+  // add needed properties
+  copiedFigure.refreshProperties();
 
-            copiedFigure.properties["translateX"] = new NumberProperty("translateX", 0, "Translate X");
-            copiedFigure.properties["translateY"] = new NumberProperty("translateY", 0, "Translate Y");
-
-            // add needed properties
-            copiedFigure.refreshProperties();
-        }
-
-        copiedFigure?.svgElement.addEventListener("click", () => {
-            createPropPane(selectedFigure!);
-            selectedFigure = copiedFigure;
-          });
-    }
-    return copiedFigure;
+  return copiedFigure;
 }
 
 export function Paste(copiedFigure: Figure | null): void {
-    if (copiedFigure && !figuresContainer.figures.includes(copiedFigure)) {
-        figuresContainer.add(copiedFigure!);
-        dragAndDropBootstrap(copiedFigure!);
-    } else if (copiedFigure) {
-        copiedFigure = Copy(copiedFigure);
-        Paste(copiedFigure);
-    }
+  if (copiedFigure && !figuresContainer.figures.includes(copiedFigure)) {
+    figuresContainer.add(copiedFigure!);
+    dragAndDropBootstrap(copiedFigure!);
+  } else if (copiedFigure) {
+    copiedFigure = Copy(copiedFigure);
+
+    Paste(copiedFigure);
+  }
 }
 
 export function Delete(selectedFigure: Figure | null): void {
-    figuresContainer.figures = figuresContainer.figures.filter((f) => f !== selectedFigure);
-    figuresContainer.refreshOrder();
-    closePropPane();
+  figuresContainer.figures = figuresContainer.figures.filter(
+    (f) => f !== selectedFigure
+  );
+  figuresContainer.refreshOrder();
+  closePropPane();
 }
