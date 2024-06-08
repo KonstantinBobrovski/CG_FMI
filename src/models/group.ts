@@ -2,12 +2,10 @@ import Figure from "./figure";
 import { Property } from "./properties";
 
 class Group {
-    name: string;
     figures: Figure[];
     properties: Record<string, Property>;
 
-    constructor(name: string) {
-        this.name = name;
+    constructor() {
         this.figures = [];
         this.properties = {};
     }

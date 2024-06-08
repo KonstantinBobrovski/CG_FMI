@@ -9,7 +9,7 @@ import {
 
 export class GroupFactory {
   static createGroup(name: string): Group {
-    const group = new Group(name);
+    const group = new Group();
     group.properties = this.getBaseProperties(name);
     return group;
   }
