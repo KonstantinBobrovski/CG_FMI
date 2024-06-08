@@ -3,162 +3,24 @@ import { GroupFactory } from "./factories/group.factory";
 import Figure from "./models/figure";
 import Group from "./models/group";
 import { closePropPane, createGroupPropPane, createPropPane } from "./ui/create-prop-pane";
-const svgRoot = document.querySelector("#svg-root")!;
-const treemap = document.querySelector("#treemap-figures")!;
+const svgRoot = document.querySelector<HTMLElement>("#svg-root")!;
+const treemap = document.querySelector<HTMLElement>("#treemap-figures")!;
 const createGroupButton = document.querySelector("#create-group-button")!;
 
 export const figuresContainer = {
   figures: [] as Figure[],
   groups: [] as Group[],
   refreshOrder() {
-    figuresContainer.figures.sort(
-      (fig, fig2) =>
-        +fig.properties["z-index"].value - +fig2.properties["z-index"].value
-    );
-    while (svgRoot?.firstChild) {
-      svgRoot.firstChild.remove();
-    }
-    while (treemap?.firstChild) {
-      treemap.firstChild.remove();
-    }
-    this.refreshTree();
+      this.figures.sort((fig1, fig2) => +fig1.properties["z-index"].value - +fig2.properties["z-index"].value);
+      this.clearElement(svgRoot);
+      this.clearElement(treemap);
+      this.refreshTree();
   },
   refreshTree() {
-    while (treemap?.firstChild) {
-      treemap.firstChild.remove();
-    }
+    this.clearElement(treemap);
 
-    figuresContainer.groups.forEach((group) => {
-      const groupNameli = document.createElement("li");
-      treemap.appendChild(groupNameli);
-      const nameWrapper = document.createElement("span");
-      nameWrapper.textContent = `Group: ${group.properties['groupName'].value}`;
-      groupNameli.appendChild(nameWrapper);
-
-      const g = document.createElementNS(BaseFigureFactory.svgNS, "g");
-      const deleteButton = document.createElement("button");
-      deleteButton.textContent = "X";
-      deleteButton.classList.add("delete-button");
-      deleteButton.addEventListener("click", () => {
-        const index = figuresContainer.groups.indexOf(group);
-        if (index !== -1) {
-          figuresContainer.groups.splice(index, 1);
-          groupNameli.remove();
-          group.figures.forEach((fig) => {
-            fig.svgElement.remove();
-          });
-          this.refreshOrder();
-        }
-      });
-      groupNameli.appendChild(deleteButton);
-
-      const ul = document.createElement('ul');
-      group.figures.forEach((fig) => {
-        const li = document.createElement("li");
-        ul.appendChild(li);
-        const nameWrapper = document.createElement("span");
-        nameWrapper.textContent = fig.properties["name"].value;
-        li.appendChild(nameWrapper);
-
-        const deleteButton = document.createElement("button");
-        deleteButton.textContent = "X";
-        deleteButton.classList.add("delete-button");
-        deleteButton.addEventListener("click", () => {
-          group.figures = group.figures.filter(
-            (f) => f !== fig
-          );
-          li.remove();
-          fig.svgElement.remove();
-          this.refreshOrder();
-        });
-        li.appendChild(deleteButton);
-
-        const removeFromGroup = document.createElement("button");
-        removeFromGroup.textContent = "-";
-        removeFromGroup.classList.add("remove-from-group-button");
-        removeFromGroup.addEventListener("click", () => {
-          group.removeFigure(fig);
-          li.remove();
-          fig.svgElement.remove();
-          figuresContainer.add(fig);
-          this.refreshOrder();
-        });
-        li.appendChild(removeFromGroup);
-
-        li.addEventListener("click", (e) => {
-          if (e.target === deleteButton || e.target === removeFromGroup) {
-            closePropPane();
-          } else {
-            createPropPane(fig)
-          }
-        });
-        groupNameli.appendChild(ul);
-        g.appendChild(fig.svgElement);
-      });
-
-      groupNameli.addEventListener("click", (e) => {
-        if (e.target !== deleteButton) {
-          createGroupPropPane(group);
-        } else {
-          closePropPane();
-        }
-      });
-
-      svgRoot.appendChild(g);
-    });
-
-    figuresContainer.figures.forEach((fig) => {
-      const li = document.createElement("li");
-
-      treemap.appendChild(li);
-      const nameWrapper = document.createElement("span");
-      nameWrapper.textContent = fig.properties["name"].value;
-      li.appendChild(nameWrapper);
-
-      const deleteButton = document.createElement("button");
-      deleteButton.textContent = "X";
-      deleteButton.classList.add("delete-button");
-      deleteButton.addEventListener("click", () => {
-        figuresContainer.figures = figuresContainer.figures.filter(
-          (f) => f !== fig
-        );
-        li.remove();
-        fig.svgElement.remove();
-        this.refreshOrder();
-      });
-      li.appendChild(deleteButton);
-
-      const addToGroup = document.createElement("button");
-      addToGroup.textContent = "+";
-      addToGroup.classList.add("add-to-group-button");
-      addToGroup.addEventListener("click", () => {
-        const groupName = prompt('Select the group name:');
-        if (groupName) {
-          const group = figuresContainer.groups.find(group => group.properties['groupName'].value === groupName);
-          if (group) {
-            group.addFigure(fig);
-            figuresContainer.figures = figuresContainer.figures.filter(
-              (f) => f !== fig
-            );
-            li.remove();
-            this.refreshOrder();
-          } else {
-            alert('Group "' + groupName + '" not found!');
-          }
-        }
-        this.refreshOrder();
-      });
-      li.appendChild(addToGroup);
-
-      li.addEventListener("click", (e) => {
-        if (e.target === deleteButton || e.target === addToGroup) {
-          closePropPane();
-        } else {
-          createPropPane(fig)
-        }
-      });
-      svgRoot.appendChild(fig.svgElement);
-    });
+    this.groups.forEach(group => this.createGroupTreeElement(group));
+    this.figures.forEach(fig => this.createFigureTreeElement(fig));
   },
   add(figure: Figure) {
     figuresContainer.figures.push(figure);
@@ -171,9 +33,138 @@ export const figuresContainer = {
       alert('Group "' + groupName + '" already exists');
     } else {
       const group = GroupFactory.createGroup(groupName);
-      figuresContainer.groups.push(group);
+      this.groups.push(group);
       this.refreshOrder();
     }
+  },
+  clearElement(element: HTMLElement){
+    while (element.firstChild) {
+      element.firstChild.remove();
+    }
+  },
+  createGroupTreeElement(group: Group) {
+    const groupElement = document.createElement("li");
+    const nameWrapper = this.createElement("span", `Group: ${group.properties["groupName"].value}`);
+    const deleteButton = this.createButton("X", "delete-button", () => this.deleteGroup(group, groupElement));
+    const ul = document.createElement("ul");
+
+    group.figures.forEach(fig => ul.appendChild(this.createFigureInGroupTreeElement(fig, group)));
+
+    groupElement.appendChild(nameWrapper);
+    groupElement.appendChild(deleteButton);
+    groupElement.appendChild(ul);
+
+    groupElement.addEventListener("click", (e) => {
+      if (e.target !== deleteButton) {
+        createGroupPropPane(group);
+      } else {
+        closePropPane();
+      }
+    });
+
+    treemap.appendChild(groupElement);
+
+    const g = document.createElementNS(BaseFigureFactory.svgNS, "g");
+    group.figures.forEach(fig => g.appendChild(fig.svgElement));
+    svgRoot.appendChild(g);
+  },
+  createFigureTreeElement(fig: Figure) {
+    const figureElement = document.createElement("li");
+    const nameWrapper = this.createElement("span", fig.properties["name"].value);
+    const deleteButton = this.createButton("X", "delete-button", () => this.deleteFigure(fig, figureElement));
+    const addToGroupButton = this.createButton("+", "add-to-group-button", () => this.addFigureToGroup(fig, figureElement));
+
+    figureElement.appendChild(nameWrapper);
+    figureElement.appendChild(deleteButton);
+    figureElement.appendChild(addToGroupButton);
+
+    figureElement.addEventListener("click", (e) => {
+      if (e.target === deleteButton || e.target === addToGroupButton) {
+        closePropPane();
+      } else {
+        createPropPane(fig);
+      }
+    });
+
+    treemap.appendChild(figureElement);
+    svgRoot.appendChild(fig.svgElement);
+  },
+  createFigureInGroupTreeElement(fig: Figure, group: Group) {
+    const figureElement = document.createElement("li");
+    const nameWrapper = this.createElement("span", fig.properties["name"].value);
+    const deleteButton = this.createButton("X", "delete-button", () => this.deleteFigureFromGroup(fig, group, figureElement));
+    const removeFromGroupButton = this.createButton("-", "remove-from-group-button", () => this.removeFigureFromGroup(fig, group, figureElement));
+
+    figureElement.appendChild(nameWrapper);
+    figureElement.appendChild(deleteButton);
+    figureElement.appendChild(removeFromGroupButton);
+
+    figureElement.addEventListener("click", (e) => {
+      if (e.target === deleteButton || e.target === removeFromGroupButton) {
+        closePropPane();
+      } else {
+        createPropPane(fig);
+      }
+    });
+
+    return figureElement;
+  },
+  createElement(tag: string, textContent: string): HTMLElement {
+    const element = document.createElement(tag);
+    element.textContent = textContent;
+    return element;
+  },
+
+  createButton(text: string, className: string, onClick: () => void): HTMLButtonElement {
+    const button = document.createElement("button");
+    button.textContent = text;
+    button.classList.add(className);
+    button.addEventListener("click", onClick);
+    return button;
+  },
+
+  deleteFigure(fig: Figure, figureElement: HTMLElement) {
+    this.figures = this.figures.filter(f => f !== fig);
+    figureElement.remove();
+    fig.svgElement.remove();
+    this.refreshOrder();
+  },
+
+  deleteGroup(group: Group, groupElement: HTMLElement) {
+    this.groups = this.groups.filter(g => g !== group);
+    groupElement.remove();
+    group.figures.forEach(fig => fig.svgElement.remove());
+    this.refreshOrder();
+  },
+
+  deleteFigureFromGroup(fig: Figure, group: Group, figureElement: HTMLElement) {
+    group.figures = group.figures.filter(f => f !== fig);
+    figureElement.remove();
+    fig.svgElement.remove();
+    this.refreshOrder();
+  },
+
+  removeFigureFromGroup(fig: Figure, group: Group, figureElement: HTMLElement) {
+    group.removeFigure(fig);
+    figureElement.remove();
+    this.add(fig);
+    this.refreshOrder();
+  },
+
+  addFigureToGroup(fig: Figure, figureElement: HTMLElement) {
+    const groupName = prompt('Select the group name:');
+    if (groupName) {
+      const group = this.groups.find(group => group.properties['groupName'].value === groupName);
+      if (group) {
+        group.addFigure(fig);
+        this.figures = this.figures.filter(f => f !== fig);
+        figureElement.remove();
+        this.refreshOrder();
+      } else {
+        alert(`Group "${groupName}" not found!`);
+      }
+    }
+    this.refreshOrder();
   },
 };
 
