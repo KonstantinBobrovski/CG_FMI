@@ -7,10 +7,8 @@ import { EllipseFactory } from "./factories/ellipse.factory";
 import { figuresContainer } from "./figures-container";
 
 import Figure from "./models/figure";
-import { createPropPane } from "./ui/create-prop-pane";
-import { Property } from "./models/properties";
+import { closePropPane, createPropPane } from "./ui/create-prop-pane";
 import { bootstrapPersistence } from "./ui/bootstrap-persistence";
-import { SvgInHtml } from "./types/svg";
 
 const figureFactories: BaseFigureFactory<Figure>[] = [
   new CircleFactory(),
@@ -107,10 +105,18 @@ const zoom = (e: WheelEvent) => {
 
 svgRoot.addEventListener("wheel", zoom);
 
-searchInput.addEventListener('input', (e) => {
+svgRoot.addEventListener("click", (e) => {
+  if ((e.target as HTMLElement) === svgRoot) {
+    closePropPane();
+  }
+});
+
+searchInput.addEventListener("input", (e) => {
   const searchTerm = (e.target as HTMLInputElement).value.trim();
 
-  const figure = figuresContainer.figures.find((figure) => figure.properties.name.value.trim() === searchTerm);
+  const figure = figuresContainer.figures.find(
+    (figure) => figure.properties.name.value.trim() === searchTerm
+  );
   if (figure) {
     createPropPane(figure);
   } else {
