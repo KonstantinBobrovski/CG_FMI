@@ -22,10 +22,14 @@ export class PolygonFactory extends BaseFigureFactory<Polygon> {
       ? "50,15 90,100 10,100"
       : "20,20 80,20 100,40 80,60 20,60 0,40";
 
-    const currentProps = [
-      new StringProperty("points", pointsValue),
-    ].reduce((prev, curr) => ({ ...prev, [curr.name]: { ...curr } }), {});
+    const currentProps = [new StringProperty("points", pointsValue)].reduce(
+      (prev, curr) => ({ ...prev, [curr.name]: curr }),
+      {}
+    );
 
-    return { ...BaseFigureFactory.getBaseProperties("polygon"), ...currentProps };
+    return {
+      ...BaseFigureFactory.getBaseProperties("polygon"),
+      ...currentProps,
+    };
   }
 }
