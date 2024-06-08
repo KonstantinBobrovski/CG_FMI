@@ -69,4 +69,5 @@ export const createPropPane = (figure: Figure) => {
 
 export const closePropPane = () => {
   propertiesTab.innerHTML = "";
+
 };

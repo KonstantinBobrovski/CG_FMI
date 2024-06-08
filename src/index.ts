@@ -1,10 +1,12 @@
 import { figuresContainer } from "./figures-container";
 import { closePropPane, createPropPane } from "./ui/create-prop-pane";
 import Figure from "./models/figure";
+
 import { bootstrapPersistence } from "./ui/bootstrap-persistence";
 import { Copy, Delete, Paste } from "./ui/actions";
 import { figureFactories } from "./factories";
 import { SvgInHtml } from "./types/svg";
+
 
 const figuresChooser = document.querySelector("#figures-chooser")!;
 const svgRoot: SvgInHtml = document.querySelector("#svg-root")!;
@@ -94,6 +96,8 @@ const zoom = (e: WheelEvent) => {
 };
 
 svgRoot.addEventListener("wheel", zoom);
+
+
 
 searchInput.addEventListener("input", (e) => {
   const searchTerm = (e.target as HTMLInputElement).value.trim();
