@@ -22,6 +22,7 @@ const figuresChooser = document.querySelector("#figures-chooser")!;
 const template = document.querySelector("#input-template")!;
 const propertiesTab = document.querySelector("#properties-tab")!;
 const svgRoot: HTMLElement = document.querySelector("#svg-root")!;
+const searchInput: HTMLInputElement = document.querySelector("#search-input")!;
 
 const dragAndDropBootstrap = (figure: Figure) => {
   figure.svgElement.addEventListener("mousedown", (e) => {
@@ -104,10 +105,23 @@ const zoom = (e: WheelEvent) => {
 
 svgRoot.addEventListener("wheel", zoom);
 
-svgRoot.addEventListener('click', (e) => {
+svgRoot.addEventListener("click", (e) => {
   if ((e.target as HTMLElement) === svgRoot) {
     closePropPane();
   }
-})
+});
+
+searchInput.addEventListener("input", (e) => {
+  const searchTerm = (e.target as HTMLInputElement).value.trim();
+
+  const figure = figuresContainer.figures.find(
+    (figure) => figure.properties.name.value.trim() === searchTerm
+  );
+  if (figure) {
+    createPropPane(figure);
+  } else {
+    //!!! Add here the close prop pane from the other PR.
+  }
+});
 
 bootstrap();

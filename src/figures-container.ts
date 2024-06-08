@@ -15,14 +15,19 @@ export const figuresContainer = {
     while (treemap?.firstChild) {
       treemap.firstChild.remove();
     }
+    this.refreshTree();
+  },
+  refreshTree() {
+    while (treemap?.firstChild) {
+      treemap.firstChild.remove();
+    }
 
     figuresContainer.figures.forEach((fig) => {
       const li = document.createElement("li");
 
       treemap.appendChild(li);
       const nameWrapper = document.createElement("span");
-      //TODO: Add here name when implemented
-      nameWrapper.textContent = fig.constructor.name;
+      nameWrapper.textContent = fig.properties["name"].value;
       li.appendChild(nameWrapper);
 
       const deleteButton = document.createElement("button");

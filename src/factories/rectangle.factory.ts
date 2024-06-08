@@ -23,6 +23,6 @@ export class RectangleFactory extends BaseFigureFactory<Rectangle> {
       new NumberProperty("width", 100),
       new NumberProperty("height", 100),
     ].reduce((prev, curr) => ({ ...prev, [curr.name]: { ...curr } }), {});
-    return { ...BaseFigureFactory.getBaseProperties(), ...currentProps };
+    return { ...BaseFigureFactory.getBaseProperties("rectangle"), ...currentProps };
   }
 }
