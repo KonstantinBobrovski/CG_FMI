@@ -7,11 +7,9 @@ import { Copy, Delete, Paste } from "./ui/actions";
 import { figureFactories } from "./factories";
 import { SvgInHtml } from "./types/svg";
 
-
 const figuresChooser = document.querySelector("#figures-chooser")!;
 const svgRoot: SvgInHtml = document.querySelector("#svg-root")!;
 const searchInput: HTMLInputElement = document.querySelector("#search-input")!;
-
 const tooltip: HTMLElement = document.querySelector("#tooltip")!;
 
 let selectedFigure: Figure | null = null;
@@ -189,8 +187,6 @@ document.addEventListener("keydown", (event) => {
   copiedFigure = Copy(selectedFigure);
   const temp = copiedFigure;
   temp?.svgElement.addEventListener("click", () => {
-    console.log({ copiedFigure });
-
     selectedFigure = temp;
     createPropPane(temp!);
   });
