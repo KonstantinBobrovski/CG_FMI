@@ -64,3 +64,7 @@ export const createPropPane = (figure: Figure) => {
     propertiesTab.appendChild(wrapper);
   });
 };
+
+export const closePropPane = () => {
+  propertiesTab.innerHTML = "";
+}
