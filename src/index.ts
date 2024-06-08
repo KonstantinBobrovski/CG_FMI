@@ -2,7 +2,7 @@ import { figuresContainer } from "./figures-container";
 import { closePropPane, createPropPane } from "./ui/create-prop-pane";
 import Figure from "./models/figure";
 import { bootstrapPersistence } from "./ui/bootstrap-persistence";
-import { Copy, Delete, Paste } from "./utils/actions";
+import { Copy, Delete, Paste } from "./ui/actions";
 import { figureFactories } from "./factories";
 import { SvgInHtml } from "./types/svg";
 

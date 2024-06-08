@@ -6,7 +6,7 @@ import Figure from "../models/figure";
 
 import { NameProperty, NumberProperty, Property } from "../models/properties";
 
-import { closePropPane } from "../ui/create-prop-pane";
+import { closePropPane } from "./create-prop-pane";
 import { figureFactories } from "../factories";
 export function Copy(selectedFigure: Figure): Figure | null {
   let copiedFigure: Figure | null = null;
