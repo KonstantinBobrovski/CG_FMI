@@ -131,19 +131,19 @@ const initializeSvgRoot = () => {
     tooltip.style.flexDirection = "column";
 
     const insertButton = createButton("Insert", "", () => {
-      tooltip.replaceChildren();
+      tooltip.innerHTML = "";
       figureFactories.forEach((factory) => {
-        const factoryButton = createButton(factory.constructor.name.replace('Factory',''), "", () => {
+        const factoryButton = createButton(factory.constructor.name.replace('Factory', ''), "", () => {
           const newFigure = factory.createFigure();
+          changeToSvgCoordinates(mouseX, mouseY, newFigure);
           initFigureEventListeners(newFigure);
-          newFigure.properties["translateX"].value = mouseX.toString();
-          newFigure.properties["translateY"].value = mouseY.toString();
-          figuresContainer.add(newFigure);
           dragAndDropBootstrap(newFigure);
+          newFigure.refreshProperties();
+          figuresContainer.add(newFigure);
           tooltip.style.display = "none";
         });
         tooltip.appendChild(factoryButton);
-      })
+      });
     });
 
     const copyButton = createButton("Copy", "", () => {
@@ -159,6 +159,8 @@ const initializeSvgRoot = () => {
 
     const pasteButton = createButton("Paste", "", () => {
       Paste(copiedFigure);
+      changeToSvgCoordinates(mouseX, mouseY, copiedFigure!);
+      copiedFigure?.refreshProperties();
       tooltip.style.display = "none";
     });
 
@@ -167,11 +169,16 @@ const initializeSvgRoot = () => {
       tooltip.style.display = "none";
     });
 
+    // Check them that way to maintain the order
     tooltip.innerHTML = "";
     tooltip.appendChild(insertButton);
-    tooltip.appendChild(copyButton);
-    tooltip.appendChild(pasteButton);
-    tooltip.appendChild(deleteButton);
+    if ((e.target as HTMLElement) !== svgRoot) {
+      tooltip.appendChild(copyButton);
+    }
+    if (copiedFigure) { tooltip.appendChild(pasteButton); }
+    if ((e.target as HTMLElement) !== svgRoot) {
+      tooltip.appendChild(deleteButton);
+    }
   });
 };
 
@@ -207,3 +214,25 @@ const bootstrap = () => {
 };
 
 bootstrap();
+
+export function changeToSvgCoordinates(mouseX: number, mouseY: number, newFigure: Figure) {
+  const ctm = svgRoot.getScreenCTM()!.inverse();
+  const point = new DOMPoint(mouseX, mouseY);
+  const transformedPoint = point.matrixTransform(ctm);
+  newFigure.properties["translateX"].value = transformedPoint.x.toString();
+  newFigure.properties["translateY"].value = transformedPoint.y.toString();
+  if (newFigure.properties["cx"]) {
+    newFigure.properties["cx"].value = "0";
+    newFigure.properties["cy"].value = "0";
+  }
+
+  if (newFigure.properties["x"]) {
+    newFigure.properties["x"].value = "0";
+    newFigure.properties["y"].value = "0";
+  }
+
+  if (newFigure.properties["points"]) {
+    newFigure.properties["translateX"].value = (+newFigure.properties["translateX"].value - 50).toString();
+    newFigure.properties["translateY"].value = (+newFigure.properties["translateY"].value - 30).toString();
+  }
+}

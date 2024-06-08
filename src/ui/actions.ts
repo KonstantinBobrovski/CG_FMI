@@ -57,6 +57,7 @@ export function Paste(copiedFigure: Figure | null): void {
   if (copiedFigure && !figuresContainer.figures.includes(copiedFigure)) {
     figuresContainer.add(copiedFigure!);
     dragAndDropBootstrap(copiedFigure!);
+    
   } else if (copiedFigure) {
     copiedFigure = Copy(copiedFigure);
 
