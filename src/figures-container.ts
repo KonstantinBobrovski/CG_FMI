@@ -6,6 +6,7 @@ import { closePropPane, createGroupPropPane, createPropPane } from "./ui/create-
 const svgRoot = document.querySelector<HTMLElement>("#svg-root")!;
 const treemap = document.querySelector<HTMLElement>("#treemap-figures")!;
 const createGroupButton = document.querySelector("#create-group-button")!;
+const clearCanvasButton = document.querySelector("#clear-canvas-button")!;
 
 export const figuresContainer = {
   figures: [] as Figure[],
@@ -174,3 +175,10 @@ createGroupButton.addEventListener('click', () => {
     figuresContainer.addGroup(groupName);
   }
 });
+
+clearCanvasButton.addEventListener('click', () => {
+  figuresContainer.figures = [];
+  figuresContainer.groups = [];
+  figuresContainer.refreshOrder();
+  closePropPane();
+})
