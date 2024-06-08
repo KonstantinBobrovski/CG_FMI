@@ -1,18 +1,11 @@
-import { BaseFigureFactory } from "../factories/base-figure.factory";
 import { figuresContainer } from "../figures-container";
 import Figure from "../models/figure";
 import { Property } from "../models/properties";
 import { createPropPane } from "./create-prop-pane";
 
-const figuresChooser = document.querySelector("#figures-chooser")!;
-const template = document.querySelector("#input-template")!;
-const propertiesTab = document.querySelector("#properties-tab")!;
 const svgRoot = document.querySelector("#svg-root")!;
-
-export const bootstrapPersistence = (
-  figureFactories: BaseFigureFactory<Figure>[],
-  dragAndDrop: (figure: Figure) => void
-) => {
+import { figureFactories } from "../factories";
+export const bootstrapPersistence = (dragAndDrop: (figure: Figure) => void) => {
   document.querySelector("#download-png")!.addEventListener("click", () => {
     const svgData = new XMLSerializer().serializeToString(svgRoot);
     const svgDataBase64 = btoa(unescape(encodeURIComponent(svgData)));
