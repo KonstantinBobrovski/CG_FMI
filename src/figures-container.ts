@@ -134,7 +134,7 @@ export const figuresContainer = {
       addToGroup.addEventListener("click", () => {
         const groupName = prompt('Select the group name:');
         if (groupName) {
-          const group = figuresContainer.groups.find(group => group.name === groupName);
+          const group = figuresContainer.groups.find(group => group.properties['groupName'].value === groupName);
           if (group) {
             group.addFigure(fig);
             figuresContainer.figures = figuresContainer.figures.filter(
@@ -167,7 +167,7 @@ export const figuresContainer = {
     this.refreshOrder();
   },
   addGroup(groupName: string) {
-    if (figuresContainer.groups.find(group => group.name === groupName)) {
+    if (figuresContainer.groups.find(group => group.properties['groupName'].value === groupName)) {
       alert('Group "' + groupName + '" already exists');
     } else {
       const group = GroupFactory.createGroup(groupName);
