@@ -6,6 +6,7 @@ import {
   NumberProperty,
   PercentageProperty,
   Property,
+  StringProperty,
 } from "../models/properties";
 
 let elementsCreated = 0;
@@ -45,6 +46,11 @@ export abstract class BaseFigureFactory<T extends Figure> {
       new NumberProperty("translateY", 0, "Translate Y"),
       new ColorProperty("fill", "black"),
       new ColorProperty("stroke", "black"),
+      new StringProperty(
+        "stroke-dasharray",
+        "0,0",
+        "Stroke Type"
+      ),
     ].reduce((prev, curr) => ({ ...prev, [curr.name]: curr }), {});
   }
 
