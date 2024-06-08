@@ -7,8 +7,16 @@ import { EllipseFactory } from "./factories/ellipse.factory";
 import { figuresContainer } from "./figures-container";
 
 import Figure from "./models/figure";
+
 import { closePropPane, createPropPane } from "./ui/create-prop-pane";
 import { bootstrapPersistence } from "./ui/bootstrap-persistence";
+import { Circle } from "./models/circle";
+import { NumberProperty } from "./models/properties";
+import { Ellipse } from "./models/ellipse";
+import { Line } from "./models/line";
+import { Rectangle } from "./models/rectangle";
+import { Polygon } from "./models/polygon";
+
 
 const figureFactories: BaseFigureFactory<Figure>[] = [
   new CircleFactory(),
@@ -24,13 +32,15 @@ const propertiesTab = document.querySelector("#properties-tab")!;
 const svgRoot: HTMLElement = document.querySelector("#svg-root")!;
 const searchInput: HTMLInputElement = document.querySelector("#search-input")!;
 
+let selectedFigure: Figure | null = null;
+let copiedFigure: Figure | null = null;
 const dragAndDropBootstrap = (figure: Figure) => {
   figure.svgElement.addEventListener("mousedown", (e) => {
     const startX = e.clientX;
     const startY = e.clientY;
 
-    const startTranslateY = +figure.properties["translateY"].value || 0;
-    const startTranslateX = +figure.properties["translateX"].value || 0;
+    const startTranslateY = +figure.properties["translateY"]?.value || 0;
+    const startTranslateX = +figure.properties["translateX"]?.value || 0;
 
     const moveAt = (e: MouseEvent) => {
       let currentX = e.clientX;
@@ -66,9 +76,10 @@ const bootstrap = () => {
     button.textContent = figure.constructor.name;
     button.addEventListener("click", () => {
       const newFigure = figure.createFigure();
-      newFigure.svgElement.addEventListener("click", () =>
-        createPropPane(newFigure)
-      );
+      newFigure.svgElement.addEventListener("click", () => {
+        selectedFigure = newFigure;
+        createPropPane(newFigure);
+      });
       figuresContainer.add(newFigure);
 
       dragAndDropBootstrap(newFigure);
@@ -125,3 +136,56 @@ searchInput.addEventListener("input", (e) => {
 });
 
 bootstrap();
+
+// Copy
+document.addEventListener('keydown', (event) => {
+  if (event.ctrlKey && event.key === 'c') {
+    if (selectedFigure) {
+      let figureFactory = null;
+
+      if (selectedFigure instanceof Circle) {
+        figureFactory = new CircleFactory();
+      } else if (selectedFigure instanceof Ellipse) {
+        figureFactory = new EllipseFactory();
+      } else if (selectedFigure instanceof Rectangle) {
+        figureFactory = new RectangleFactory();
+      } else if (selectedFigure instanceof Line) {
+        figureFactory = new LineFactory();
+      } else if (selectedFigure instanceof Polygon) {
+        figureFactory = new PolygonFactory();
+      }
+
+      if (figureFactory) {
+        copiedFigure = figureFactory.createFigure();
+        copiedFigure.properties = {...selectedFigure.properties, ...figureFactory.getProperties()};
+        copiedFigure.properties["translateX"] = new NumberProperty("translateX", 0, "Translate X");
+        copiedFigure.properties["translateY"] = new NumberProperty("translateY", 0, "Translate Y");
+        copiedFigure.refreshProperties();
+
+        copiedFigure.svgElement.addEventListener("click", () => {
+          selectedFigure = copiedFigure;
+          createPropPane(copiedFigure!);
+        });
+      }
+    }
+  }
+});
+
+// Paste
+document.addEventListener('keydown', (event) => {
+  if (event.ctrlKey && event.key === 'v') {
+    if (copiedFigure) {
+      figuresContainer.add(copiedFigure!);
+      dragAndDropBootstrap(copiedFigure!);
+    }
+  }
+});
+
+// Delete
+document.addEventListener('keydown', (event) => {
+  if (event.key === 'Delete') {
+    figuresContainer.figures = figuresContainer.figures.filter((f) => f !== selectedFigure);
+    selectedFigure = null;
+    figuresContainer.refreshOrder();
+  }
+});
