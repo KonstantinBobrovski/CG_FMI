@@ -53,7 +53,15 @@ export const createPropPane = (figure: Figure) => {
         inputElement.value = property.value;
     }
     wrapper.appendChild(inputElement);
-    inputElement.addEventListener("input", () => {
+    let prevValue = property.value;
+
+    inputElement.addEventListener("input", (e) => {
+      if (!property.validate(inputElement.value)) {
+        e.preventDefault();
+        inputElement.value = prevValue;
+        return;
+      }
+      prevValue = inputElement.value;
       figure.properties[property.name].value = inputElement.value;
       if (property.name === "z-index") {
         figuresContainer.refreshOrder();
@@ -69,7 +77,6 @@ export const createPropPane = (figure: Figure) => {
 
 export const closePropPane = () => {
   propertiesTab.innerHTML = "";
-
 };
 
 export const createGroupPropPane = (group: Group) => {

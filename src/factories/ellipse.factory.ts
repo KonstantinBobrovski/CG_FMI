@@ -20,8 +20,11 @@ export class EllipseFactory extends BaseFigureFactory<Ellipse> {
     const currentProps = [
       new NumberProperty("rx", Math.floor(Math.random() * 50) + 20),
       new NumberProperty("ry", Math.floor(Math.random() * 50) + 20),
-    ].reduce((prev, curr) => ({ ...prev, [curr.name]: { ...curr } }), {});
+    ].reduce((prev, curr) => ({ ...prev, [curr.name]: curr }), {});
 
-    return { ...BaseFigureFactory.getBaseProperties("ellipse"), ...currentProps };
+    return {
+      ...BaseFigureFactory.getBaseProperties("ellipse"),
+      ...currentProps,
+    };
   }
 }
