@@ -129,10 +129,21 @@ const initializeSvgRoot = () => {
     tooltip.style.top = `${mouseY}px`;
     tooltip.style.display = "flex";
     tooltip.style.flexDirection = "column";
-    tooltip.style.gap = "10px";
 
     const insertButton = createButton("Insert", "", () => {
-      //add new figure
+      tooltip.replaceChildren();
+      figureFactories.forEach((factory) => {
+        const factoryButton = createButton(factory.constructor.name.replace('Factory',''), "", () => {
+          const newFigure = factory.createFigure();
+          initFigureEventListeners(newFigure);
+          newFigure.properties["translateX"].value = mouseX.toString();
+          newFigure.properties["translateY"].value = mouseY.toString();
+          figuresContainer.add(newFigure);
+          dragAndDropBootstrap(newFigure);
+          tooltip.style.display = "none";
+        });
+        tooltip.appendChild(factoryButton);
+      })
     });
 
     const copyButton = createButton("Copy", "", () => {
