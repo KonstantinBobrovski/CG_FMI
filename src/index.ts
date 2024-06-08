@@ -7,7 +7,6 @@ import { Copy, Delete, Paste } from "./ui/actions";
 import { figureFactories } from "./factories";
 import { SvgInHtml } from "./types/svg";
 
-
 const figuresChooser = document.querySelector("#figures-chooser")!;
 const svgRoot: SvgInHtml = document.querySelector("#svg-root")!;
 const searchInput: HTMLInputElement = document.querySelector("#search-input")!;
@@ -31,10 +30,13 @@ export const dragAndDropBootstrap = (figure: Figure) => {
       const ctm = svgRoot.getScreenCTM()!;
 
       const rotate = +figure.properties["rotate"].value;
+      const scaleX = +figure.properties["scaleX"].value;
+      const scaleY = +figure.properties["scaleY"].value;
+
       const radians = rotate * (Math.PI / 180);
 
-      const dx = (currentX - startX) / ctm.a;
-      const dy = (currentY - startY) / ctm.d;
+      const dx = (currentX - startX) / ctm.a / scaleX;
+      const dy = (currentY - startY) / ctm.d / scaleY;
 
       const rotatedDx = dx * Math.cos(-radians) - dy * Math.sin(-radians);
       const rotatedDy = dx * Math.sin(-radians) + dy * Math.cos(-radians);
@@ -96,8 +98,6 @@ const zoom = (e: WheelEvent) => {
 };
 
 svgRoot.addEventListener("wheel", zoom);
-
-
 
 searchInput.addEventListener("input", (e) => {
   const searchTerm = (e.target as HTMLInputElement).value.trim();
@@ -189,8 +189,6 @@ document.addEventListener("keydown", (event) => {
   copiedFigure = Copy(selectedFigure);
   const temp = copiedFigure;
   temp?.svgElement.addEventListener("click", () => {
-    console.log({ copiedFigure });
-
     selectedFigure = temp;
     createPropPane(temp!);
   });

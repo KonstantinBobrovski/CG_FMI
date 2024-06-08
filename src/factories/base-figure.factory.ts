@@ -26,7 +26,7 @@ export abstract class BaseFigureFactory<T extends Figure> {
         figureCounters[figureType]++;
       }
       return figureCounters[figureType];
-    }
+    };
 
     return [
       new NameProperty("name", `${figureType}-${getFigureNumber(figureType)}`),
@@ -45,8 +45,7 @@ export abstract class BaseFigureFactory<T extends Figure> {
       new NumberProperty("translateY", 0, "Translate Y"),
       new ColorProperty("fill", "black"),
       new ColorProperty("stroke", "black"),
-
-    ].reduce((prev, curr) => ({ ...prev, [curr.name]: { ...curr } }), {});
+    ].reduce((prev, curr) => ({ ...prev, [curr.name]: curr }), {});
   }
 
   abstract getProperties(): Record<string, Property>;

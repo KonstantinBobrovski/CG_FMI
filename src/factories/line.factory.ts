@@ -27,7 +27,7 @@ export class LineFactory extends BaseFigureFactory<Line> {
       new NumberProperty("x2", 100),
       new NumberProperty("y2", 100),
       new NumberProperty("z-index", onCreateElement(), "z-index"),
-    ].reduce((prev, curr) => ({ ...prev, [curr.name]: { ...curr } }), {});
+    ].reduce((prev, curr) => ({ ...prev, [curr.name]: curr }), {});
 
     return {
       ...Object.fromEntries(

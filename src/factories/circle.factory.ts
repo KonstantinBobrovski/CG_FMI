@@ -1,8 +1,5 @@
 import { Circle } from "../models/circle";
-import {
-  NumberProperty,
-  Property,
-} from "../models/properties";
+import { NumberProperty, Property } from "../models/properties";
 import { SvgInHtml } from "../types/svg";
 import { BaseFigureFactory } from "./base-figure.factory";
 
@@ -23,8 +20,11 @@ export class CircleFactory implements BaseFigureFactory<Circle> {
       new NumberProperty("cx", 50, "x"),
       new NumberProperty("cy", 50, "y"),
       new NumberProperty("r", 10, "radius"),
-    ].reduce((prev, curr) => ({ ...prev, [curr.name]: { ...curr } }), {});
+    ].reduce((prev, curr) => ({ ...prev, [curr.name]: curr }), {});
 
-    return { ...BaseFigureFactory.getBaseProperties("circle"), ...currentProps };
+    return {
+      ...BaseFigureFactory.getBaseProperties("circle"),
+      ...currentProps,
+    };
   }
 }

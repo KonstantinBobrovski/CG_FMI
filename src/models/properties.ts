@@ -36,10 +36,7 @@ export class NumberProperty extends Property {
   }
 
   validate(value: number): boolean {
-    if (value < this.min || value > this.max) {
-      return false;
-    }
-    return true;
+    return !(value < this.min || value > this.max);
   }
 }
 
@@ -51,7 +48,7 @@ export class StringProperty extends Property {
   }
 
   validate(value: string): boolean {
-    return typeof value === "string";
+    return !(value == "");
   }
 }
 
