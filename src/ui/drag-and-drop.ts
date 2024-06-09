@@ -1,9 +1,11 @@
+import { figuresContainer } from "../figures-container";
 import Figure from "../models/figure";
 import Group from "../models/group";
 import { SvgInHtml } from "../types/svg";
 const svgRoot: SvgInHtml = document.querySelector("#svg-root")!;
 
 export const dragAndDropBootstrap = (entity: Figure | Group) => {
+  if (entity instanceof Group) return;
   entity.svgElement.addEventListener("mousedown", (e) => {
     const startX = e.clientX;
     const startY = e.clientY;
@@ -14,9 +16,14 @@ export const dragAndDropBootstrap = (entity: Figure | Group) => {
       const currentX = e.clientX;
       const currentY = e.clientY;
       const ctm = svgRoot.getScreenCTM()!;
+      const parentGroup = figuresContainer.groups.find((group) =>
+        group.figures.includes(entity)
+      );
+      const parentScaleX = +(parentGroup?.properties["scaleX"].value || 1);
+      const parentScaleY = +(parentGroup?.properties["scaleY"].value || 1);
       const rotate = +entity.properties["rotate"].value;
-      const scaleX = +entity.properties["scaleX"].value;
-      const scaleY = +entity.properties["scaleY"].value;
+      const scaleX = +entity.properties["scaleX"].value * parentScaleX;
+      const scaleY = +entity.properties["scaleY"].value * parentScaleY;
       const radians = rotate * (Math.PI / 180);
       const dx = (currentX - startX) / ctm.a / scaleX;
       const dy = (currentY - startY) / ctm.d / scaleY;

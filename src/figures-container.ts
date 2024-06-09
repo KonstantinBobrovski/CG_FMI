@@ -257,33 +257,35 @@ export const figuresContainer = {
 
   addFigureToGroup(fig: Figure, figureElement: HTMLElement) {
     const groupName = prompt("Select the group name:");
-    if (groupName) {
-      const group = this.groups.find(
+    let group = this.groups.find(
+      (group) => group.properties["groupName"].value === groupName
+    );
+    if (!groupName) {
+      return;
+    }
+    if (!group) {
+      figuresContainer.addGroup(groupName);
+      group = this.groups.find(
         (group) => group.properties["groupName"].value === groupName
       );
-      if (group) {
-        fig.svgElement.addEventListener("click", () => {
-          if (group) {
-            createGroupPropPane(group);
-          } else {
-            createPropPane(fig);
-          }
-        });
-
-        fig.svgElement.addEventListener("dblclick", () => {
-          if (group) {
-            createPropPane(fig);
-          }
-        });
-
-        group.addFigure(fig);
-        this.figures = this.figures.filter((f) => f !== fig);
-        figureElement.remove();
-        this.refreshOrder();
-      } else {
-        alert(`Group "${groupName}" not found!`);
-      }
     }
+    fig.svgElement.addEventListener("click", () => {
+      if (group) {
+        createGroupPropPane(group);
+      } else {
+        createPropPane(fig);
+      }
+    });
+
+    fig.svgElement.addEventListener("dblclick", () => {
+      if (group) {
+        createPropPane(fig);
+      }
+    });
+
+    group!.addFigure(fig);
+    this.figures = this.figures.filter((f) => f !== fig);
+    figureElement.remove();
     this.refreshOrder();
   },
 };
