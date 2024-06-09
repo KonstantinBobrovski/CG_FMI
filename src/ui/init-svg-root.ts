@@ -83,7 +83,7 @@ export const initializeSvgRoot = () => {
       let t = Copy(selectedFigure);
       setCopiedFigure(t);
       t?.svgElement.addEventListener("click", () => {
-        createPropPane(selectedFigure!);
+        createPropPane(t!);
         setSelectedFigure(t);
       });
     });
