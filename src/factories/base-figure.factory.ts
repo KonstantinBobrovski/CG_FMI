@@ -42,15 +42,23 @@ export abstract class BaseFigureFactory<T extends Figure> {
       new NumberProperty("z-index", onCreateElement(), "z-index"),
       new NumberProperty("scaleX", 1, "Scale X"),
       new NumberProperty("scaleY", 1, "Scale Y"),
-      new NumberProperty("translateX", 0, "Translate X"),
-      new NumberProperty("translateY", 0, "Translate Y"),
+      new NumberProperty(
+        "translateX",
+        0,
+        "Translate X",
+        Number.MIN_SAFE_INTEGER,
+        Number.MAX_VALUE
+      ),
+      new NumberProperty(
+        "translateY",
+        0,
+        "Translate Y",
+        Number.MIN_SAFE_INTEGER,
+        Number.MAX_VALUE
+      ),
       new ColorProperty("fill", "black"),
       new ColorProperty("stroke", "black"),
-      new StringProperty(
-        "stroke-dasharray",
-        "0,0",
-        "Stroke Type"
-      ),
+      new StringProperty("stroke-dasharray", "0,0", "Stroke Type"),
     ].reduce((prev, curr) => ({ ...prev, [curr.name]: curr }), {});
   }
 

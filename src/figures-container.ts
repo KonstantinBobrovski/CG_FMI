@@ -1,4 +1,3 @@
-import { dragAndDropBootstrap } from ".";
 import { BaseFigureFactory } from "./factories/base-figure.factory";
 import { GroupFactory } from "./factories/group.factory";
 import Figure from "./models/figure";
@@ -6,7 +5,12 @@ import Group from "./models/group";
 import { NameProperty, Property } from "./models/properties";
 import { SvgInHtml } from "./types/svg";
 import { Copy } from "./ui/actions";
-import { closePropPane, createGroupPropPane, createPropPane } from "./ui/create-prop-pane";
+import {
+  closePropPane,
+  createGroupPropPane,
+  createPropPane,
+} from "./ui/create-prop-pane";
+import { dragAndDropBootstrap } from "./ui/drag-and-drop";
 const svgRoot = document.querySelector<HTMLElement>("#svg-root")!;
 const treemap = document.querySelector<HTMLElement>("#treemap-figures")!;
 const createGroupButton = document.querySelector("#create-group-button")!;
@@ -16,8 +20,15 @@ export const figuresContainer = {
   figures: [] as Figure[],
   groups: [] as Group[],
   refreshOrder() {
-    this.figures.sort((fig1, fig2) => +fig1.properties["z-index"].value - +fig2.properties["z-index"].value);
-    this.groups.sort((group1, group2) => +group1.properties["z-index"].value - +group2.properties["z-index"].value);
+    this.figures.sort(
+      (fig1, fig2) =>
+        +fig1.properties["z-index"].value - +fig2.properties["z-index"].value
+    );
+    this.groups.sort(
+      (group1, group2) =>
+        +group1.properties["z-index"].value -
+        +group2.properties["z-index"].value
+    );
     this.clearElement(svgRoot);
     this.clearElement(treemap);
     this.refreshTree();
@@ -25,8 +36,8 @@ export const figuresContainer = {
   refreshTree() {
     this.clearElement(treemap);
 
-    this.groups.forEach(group => this.createGroupTreeElement(group));
-    this.figures.forEach(fig => this.createFigureTreeElement(fig));
+    this.groups.forEach((group) => this.createGroupTreeElement(group));
+    this.figures.forEach((fig) => this.createFigureTreeElement(fig));
   },
   add(figure: Figure) {
     figuresContainer.figures.push(figure);
@@ -35,14 +46,17 @@ export const figuresContainer = {
     this.refreshOrder();
   },
   addGroup(groupName: string | Group) {
-    if (figuresContainer.groups.find(group => group.properties['groupName'].value === groupName)) {
+    if (
+      figuresContainer.groups.find(
+        (group) => group.properties["groupName"].value === groupName
+      )
+    ) {
       alert('Group "' + groupName + '" already exists');
     } else if (groupName instanceof Group) {
       this.groups.push(groupName);
       dragAndDropBootstrap(groupName);
       this.refreshOrder();
-    }
-    else {
+    } else {
       const groupFactory = new GroupFactory();
       const group = groupFactory.createFigure(groupName);
       this.groups.push(group);
@@ -57,12 +71,21 @@ export const figuresContainer = {
   },
   createGroupTreeElement(group: Group) {
     const groupElement = document.createElement("li");
-    const nameWrapper = this.createElement("span", `Group: ${group.properties["groupName"].value}`);
-    const deleteButton = this.createButton("X", "delete-button", () => this.deleteGroup(group, groupElement));
-    const copyButton = this.createButton("Copy", "copy-button", () => this.copyGroup(group));
+    const nameWrapper = this.createElement(
+      "span",
+      `Group: ${group.properties["groupName"].value}`
+    );
+    const deleteButton = this.createButton("X", "delete-button", () =>
+      this.deleteGroup(group, groupElement)
+    );
+    const copyButton = this.createButton("Copy", "copy-button", () =>
+      this.copyGroup(group)
+    );
     const ul = document.createElement("ul");
 
-    group.figures.forEach(fig => ul.appendChild(this.createFigureInGroupTreeElement(fig, group)));
+    group.figures.forEach((fig) =>
+      ul.appendChild(this.createFigureInGroupTreeElement(fig, group))
+    );
 
     groupElement.appendChild(nameWrapper);
     groupElement.appendChild(deleteButton);
@@ -70,12 +93,18 @@ export const figuresContainer = {
     groupElement.appendChild(ul);
 
     groupElement.addEventListener("click", (e) => {
-      const clickedFigure = group.figures.find(fig => fig.properties['name'].value === (e.target as HTMLElement).textContent);
+      const clickedFigure = group.figures.find(
+        (fig) =>
+          fig.properties["name"].value === (e.target as HTMLElement).textContent
+      );
 
-      if (e.target !== deleteButton && (e.target as HTMLElement) === nameWrapper) {
+      if (
+        e.target !== deleteButton &&
+        (e.target as HTMLElement) === nameWrapper
+      ) {
         createGroupPropPane(group);
       } else if (clickedFigure) {
-        createPropPane(clickedFigure)
+        createPropPane(clickedFigure);
       } else {
         closePropPane();
       }
@@ -84,16 +113,23 @@ export const figuresContainer = {
     treemap.appendChild(groupElement);
 
     const g = document.createElementNS(BaseFigureFactory.svgNS, "g");
-    group.figures.forEach(fig => g.appendChild(fig.svgElement));
+    group.figures.forEach((fig) => g.appendChild(fig.svgElement));
     svgRoot.appendChild(g);
     group.svgElement = g as SvgInHtml;
     dragAndDropBootstrap(group);
   },
   createFigureTreeElement(fig: Figure) {
     const figureElement = document.createElement("li");
-    const nameWrapper = this.createElement("span", fig.properties["name"].value);
-    const deleteButton = this.createButton("X", "delete-button", () => this.deleteFigure(fig, figureElement));
-    const addToGroupButton = this.createButton("+", "add-to-group-button", () => this.addFigureToGroup(fig, figureElement));
+    const nameWrapper = this.createElement(
+      "span",
+      fig.properties["name"].value
+    );
+    const deleteButton = this.createButton("X", "delete-button", () =>
+      this.deleteFigure(fig, figureElement)
+    );
+    const addToGroupButton = this.createButton("+", "add-to-group-button", () =>
+      this.addFigureToGroup(fig, figureElement)
+    );
 
     figureElement.appendChild(nameWrapper);
     figureElement.appendChild(deleteButton);
@@ -112,9 +148,18 @@ export const figuresContainer = {
   },
   createFigureInGroupTreeElement(fig: Figure, group: Group) {
     const figureElement = document.createElement("li");
-    const nameWrapper = this.createElement("span", fig.properties["name"].value);
-    const deleteButton = this.createButton("X", "delete-button", () => this.deleteFigureFromGroup(fig, group, figureElement));
-    const removeFromGroupButton = this.createButton("-", "remove-from-group-button", () => this.removeFigureFromGroup(fig, group, figureElement));
+    const nameWrapper = this.createElement(
+      "span",
+      fig.properties["name"].value
+    );
+    const deleteButton = this.createButton("X", "delete-button", () =>
+      this.deleteFigureFromGroup(fig, group, figureElement)
+    );
+    const removeFromGroupButton = this.createButton(
+      "-",
+      "remove-from-group-button",
+      () => this.removeFigureFromGroup(fig, group, figureElement)
+    );
 
     figureElement.appendChild(nameWrapper);
     figureElement.appendChild(deleteButton);
@@ -136,7 +181,11 @@ export const figuresContainer = {
     return element;
   },
 
-  createButton(text: string, className: string, onClick: () => void): HTMLButtonElement {
+  createButton(
+    text: string,
+    className: string,
+    onClick: () => void
+  ): HTMLButtonElement {
     const button = document.createElement("button");
     button.textContent = text;
     button.classList.add(className);
@@ -146,8 +195,10 @@ export const figuresContainer = {
 
   copyGroup(group: Group) {
     const groupFactory = new GroupFactory();
-    const copiedGroup = groupFactory.createFigure(group.properties["groupName"].value + "-copy");
-    group.figures.forEach(figure => {
+    const copiedGroup = groupFactory.createFigure(
+      group.properties["groupName"].value + "-copy"
+    );
+    group.figures.forEach((figure) => {
       const copiedFigure = Copy(figure);
       if (copiedFigure) {
         dragAndDropBootstrap(copiedFigure!);
@@ -177,21 +228,21 @@ export const figuresContainer = {
   },
 
   deleteFigure(fig: Figure, figureElement: HTMLElement) {
-    this.figures = this.figures.filter(f => f !== fig);
+    this.figures = this.figures.filter((f) => f !== fig);
     figureElement.remove();
     fig.svgElement.remove();
     this.refreshOrder();
   },
 
   deleteGroup(group: Group, groupElement: HTMLElement) {
-    this.groups = this.groups.filter(g => g !== group);
+    this.groups = this.groups.filter((g) => g !== group);
     groupElement.remove();
-    group.figures.forEach(fig => fig.svgElement.remove());
+    group.figures.forEach((fig) => fig.svgElement.remove());
     this.refreshOrder();
   },
 
   deleteFigureFromGroup(fig: Figure, group: Group, figureElement: HTMLElement) {
-    group.figures = group.figures.filter(f => f !== fig);
+    group.figures = group.figures.filter((f) => f !== fig);
     figureElement.remove();
     fig.svgElement.remove();
     this.refreshOrder();
@@ -205,11 +256,12 @@ export const figuresContainer = {
   },
 
   addFigureToGroup(fig: Figure, figureElement: HTMLElement) {
-    const groupName = prompt('Select the group name:');
+    const groupName = prompt("Select the group name:");
     if (groupName) {
-      const group = this.groups.find(group => group.properties['groupName'].value === groupName);
+      const group = this.groups.find(
+        (group) => group.properties["groupName"].value === groupName
+      );
       if (group) {
-
         fig.svgElement.addEventListener("click", () => {
           if (group) {
             createGroupPropPane(group);
@@ -225,7 +277,7 @@ export const figuresContainer = {
         });
 
         group.addFigure(fig);
-        this.figures = this.figures.filter(f => f !== fig);
+        this.figures = this.figures.filter((f) => f !== fig);
         figureElement.remove();
         this.refreshOrder();
       } else {
@@ -236,16 +288,16 @@ export const figuresContainer = {
   },
 };
 
-createGroupButton.addEventListener('click', () => {
-  const groupName = prompt('Enter the group name:');
+createGroupButton.addEventListener("click", () => {
+  const groupName = prompt("Enter the group name:");
   if (groupName) {
     figuresContainer.addGroup(groupName);
   }
 });
 
-clearCanvasButton.addEventListener('click', () => {
+clearCanvasButton.addEventListener("click", () => {
   figuresContainer.figures = [];
   figuresContainer.groups = [];
   figuresContainer.refreshOrder();
   closePropPane();
-})
+});

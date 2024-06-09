@@ -6,185 +6,19 @@ import { Copy, Delete, Paste } from "./ui/actions";
 import { figureFactories } from "./factories";
 import { SvgInHtml } from "./types/svg";
 import Group from "./models/group";
+import { createButton } from "./ui/create-button";
+import { setSelectedFigure, getSelectedFigure } from "./ui/selected-figure";
+import { dragAndDropBootstrap } from "./ui/drag-and-drop";
+import { getCopiedFigure, setCopiedFigure } from "./ui/copied-figure";
+import { initializeFiguresChooser } from "./ui/figure-chooser";
+import { initializeSvgRoot } from "./ui/init-svg-root";
+import { initializeSearchInput } from "./ui/search-bar";
 
-const figuresChooser = document.querySelector("#figures-chooser")!;
 const svgRoot: SvgInHtml = document.querySelector("#svg-root")!;
-const searchInput: HTMLInputElement = document.querySelector("#search-input")!;
-const tooltip: HTMLElement = document.querySelector("#tooltip")!;
-
-let selectedFigure: Figure | null = null;
-let copiedFigure: Figure | null = null;
-
-const createButton = (text: string, className: string, onClick: () => void): HTMLButtonElement => {
-  const button = document.createElement("button");
-  button.textContent = text;
-  button.className = className;
-  button.addEventListener("click", onClick);
-  return button;
-};
-
-const initFigureEventListeners = (figure: Figure) => {
-  figure.svgElement.addEventListener("click", () => {
-    selectedFigure = figure;
-    createPropPane(figure);
-  });
-};
-
-export const dragAndDropBootstrap = (entity: Figure | Group) => {
-  entity.svgElement.addEventListener("mousedown", (e) => {
-    const startX = e.clientX;
-    const startY = e.clientY;
-    const startTranslateY = +entity.properties["translateY"]?.value || 0;
-    const startTranslateX = +entity.properties["translateX"]?.value || 0;
-
-    const moveAt = (e: MouseEvent) => {
-      const currentX = e.clientX;
-      const currentY = e.clientY;
-      const ctm = svgRoot.getScreenCTM()!;
-      const rotate = +entity.properties["rotate"].value;
-      const scaleX = +entity.properties["scaleX"].value;
-      const scaleY = +entity.properties["scaleY"].value;
-      const radians = rotate * (Math.PI / 180);
-      const dx = (currentX - startX) / ctm.a / scaleX;
-      const dy = (currentY - startY) / ctm.d / scaleY;
-      const rotatedDx = dx * Math.cos(-radians) - dy * Math.sin(-radians);
-      const rotatedDy = dx * Math.sin(-radians) + dy * Math.cos(-radians);
-
-      entity.properties["translateX"].value = (startTranslateX + rotatedDx).toString();
-      entity.properties["translateY"].value = (startTranslateY + rotatedDy).toString();
-      entity.refreshProperties();
-    };
-
-    const stopMoving = () => {
-      document.removeEventListener("mousemove", moveAt);
-      document.removeEventListener("mouseup", stopMoving);
-    };
-
-    document.addEventListener("mousemove", moveAt);
-    document.addEventListener("mouseup", stopMoving);
-  });
-};
-
-const initializeFiguresChooser = () => {
-  figureFactories.forEach((factory) => {
-    const button = createButton(factory.constructor.name, '', () => {
-      const newFigure = factory.createFigure();
-      initFigureEventListeners(newFigure);
-      figuresContainer.add(newFigure);
-      dragAndDropBootstrap(newFigure);
-    });
-    figuresChooser.appendChild(button);
-  });
-};
-
-const initializeSearchInput = () => {
-  searchInput.addEventListener("input", (e) => {
-    const searchTerm = (e.target as HTMLInputElement).value.trim();
-    const figure = figuresContainer.figures.find(f => f.properties.name.value.trim() === searchTerm);
-    if (figure) {
-      createPropPane(figure);
-    } else {
-      closePropPane();
-    }
-  });
-};
-
-const initializeSvgRoot = () => {
-  let scale = 1;
-  const scaleFactor = 1.1;
-
-  const zoom = (e: WheelEvent) => {
-    e.preventDefault();
-    const rect = svgRoot.getBoundingClientRect();
-    const offsetX = e.clientX - rect.left;
-    const offsetY = e.clientY - rect.top;
-
-    scale = e.deltaY < 0 ? scale * scaleFactor : scale / scaleFactor;
-
-    const originX = (offsetX / rect.width) * 100;
-    const originY = (offsetY / rect.height) * 100;
-
-    svgRoot.style.transformOrigin = `${originX}% ${originY}%`;
-    if (scale < 1) {
-      scale = 1;
-      svgRoot.style.transformOrigin = `0% 0%`;
-    }
-    svgRoot.style.transform = `scale(${scale})`;
-  };
-
-  svgRoot.addEventListener("wheel", zoom);
-
-  svgRoot.addEventListener("click", (e) => {
-    if ((e.target as HTMLElement) === svgRoot) {
-      closePropPane();
-      tooltip.style.display = "none";
-    }
-  });
-
-  svgRoot.addEventListener("contextmenu", (e) => {
-    e.preventDefault();
-    const mouseX = e.clientX;
-    const mouseY = e.clientY;
-
-    tooltip.style.left = `${mouseX}px`;
-    tooltip.style.top = `${mouseY}px`;
-    tooltip.style.display = "flex";
-    tooltip.style.flexDirection = "column";
-
-    const insertButton = createButton("Insert", "", () => {
-      tooltip.innerHTML = "";
-      figureFactories.forEach((factory) => {
-        const factoryButton = createButton(factory.constructor.name.replace('Factory', ''), "", () => {
-          const newFigure = factory.createFigure();
-          changeToSvgCoordinates(mouseX, mouseY, newFigure);
-          initFigureEventListeners(newFigure);
-          dragAndDropBootstrap(newFigure);
-          newFigure.refreshProperties();
-          figuresContainer.add(newFigure);
-          tooltip.style.display = "none";
-        });
-        tooltip.appendChild(factoryButton);
-      });
-    });
-
-    const copyButton = createButton("Copy", "", () => {
-      if (selectedFigure) {
-        copiedFigure = Copy(selectedFigure);
-        copiedFigure?.svgElement.addEventListener("click", () => {
-          createPropPane(selectedFigure!);
-          selectedFigure = copiedFigure;
-        });
-      }
-      tooltip.style.display = "none";
-    });
-
-    const pasteButton = createButton("Paste", "", () => {
-      Paste(copiedFigure);
-      changeToSvgCoordinates(mouseX, mouseY, copiedFigure!);
-      copiedFigure?.refreshProperties();
-      tooltip.style.display = "none";
-    });
-
-    const deleteButton = createButton("Delete", "", () => {
-      Delete(selectedFigure);
-      tooltip.style.display = "none";
-    });
-
-    // Check them that way to maintain the order
-    tooltip.innerHTML = "";
-    tooltip.appendChild(insertButton);
-    if ((e.target as HTMLElement) !== svgRoot) {
-      tooltip.appendChild(copyButton);
-    }
-    if (copiedFigure) { tooltip.appendChild(pasteButton); }
-    if ((e.target as HTMLElement) !== svgRoot) {
-      tooltip.appendChild(deleteButton);
-    }
-  });
-};
 
 const initializeKeyboardShortcuts = () => {
   document.addEventListener("keydown", (event) => {
+    const selectedFigure = getSelectedFigure();
     if (event.key === "Delete") {
       Delete(selectedFigure);
       return;
@@ -193,14 +27,15 @@ const initializeKeyboardShortcuts = () => {
       return;
     }
     if (event.key === "v") {
-      Paste(copiedFigure);
+      Paste(getCopiedFigure());
       return;
     }
     if (event.key === "c" && selectedFigure) {
-      copiedFigure = Copy(selectedFigure);
-      copiedFigure?.svgElement.addEventListener("click", () => {
-        selectedFigure = copiedFigure;
-        createPropPane(copiedFigure!);
+      const t = Copy(selectedFigure);
+      setCopiedFigure(t);
+      t?.svgElement.addEventListener("click", () => {
+        setSelectedFigure(t);
+        createPropPane(t!);
       });
     }
   });
@@ -215,25 +50,3 @@ const bootstrap = () => {
 };
 
 bootstrap();
-
-export function changeToSvgCoordinates(mouseX: number, mouseY: number, newFigure: Figure) {
-  const ctm = svgRoot.getScreenCTM()!.inverse();
-  const point = new DOMPoint(mouseX, mouseY);
-  const transformedPoint = point.matrixTransform(ctm);
-  newFigure.properties["translateX"].value = transformedPoint.x.toString();
-  newFigure.properties["translateY"].value = transformedPoint.y.toString();
-  if (newFigure.properties["cx"]) {
-    newFigure.properties["cx"].value = "0";
-    newFigure.properties["cy"].value = "0";
-  }
-
-  if (newFigure.properties["x"]) {
-    newFigure.properties["x"].value = "0";
-    newFigure.properties["y"].value = "0";
-  }
-
-  if (newFigure.properties["points"]) {
-    newFigure.properties["translateX"].value = (+newFigure.properties["translateX"].value - 50).toString();
-    newFigure.properties["translateY"].value = (+newFigure.properties["translateY"].value - 30).toString();
-  }
-}

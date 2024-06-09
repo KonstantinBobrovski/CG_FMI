@@ -1,5 +1,3 @@
-import { dragAndDropBootstrap } from "..";
-
 import { figuresContainer } from "../figures-container";
 
 import Figure from "../models/figure";
@@ -8,6 +6,7 @@ import { NameProperty, NumberProperty, Property } from "../models/properties";
 
 import { closePropPane } from "./create-prop-pane";
 import { figureFactories } from "../factories";
+import { dragAndDropBootstrap } from "./drag-and-drop";
 export function Copy(selectedFigure: Figure): Figure | null {
   let copiedFigure: Figure | null = null;
 
@@ -57,7 +56,6 @@ export function Paste(copiedFigure: Figure | null): void {
   if (copiedFigure && !figuresContainer.figures.includes(copiedFigure)) {
     figuresContainer.add(copiedFigure!);
     dragAndDropBootstrap(copiedFigure!);
-    
   } else if (copiedFigure) {
     copiedFigure = Copy(copiedFigure);
 
