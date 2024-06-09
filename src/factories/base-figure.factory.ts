@@ -6,6 +6,7 @@ import {
   NumberProperty,
   PercentageProperty,
   Property,
+  StringProperty,
 } from "../models/properties";
 
 let elementsCreated = 0;
@@ -16,7 +17,7 @@ export const onCreateElement = () => {
 export abstract class BaseFigureFactory<T extends Figure> {
   public static svgNS: string = "http://www.w3.org/2000/svg" as const;
 
-  abstract createFigure(): T;
+  abstract createFigure(name?: string): T;
 
   static getBaseProperties(figureType: string): Record<string, Property> {
     const getFigureNumber = (figureType: string): number => {
@@ -26,7 +27,7 @@ export abstract class BaseFigureFactory<T extends Figure> {
         figureCounters[figureType]++;
       }
       return figureCounters[figureType];
-    }
+    };
 
     return [
       new NameProperty("name", `${figureType}-${getFigureNumber(figureType)}`),
@@ -45,9 +46,13 @@ export abstract class BaseFigureFactory<T extends Figure> {
       new NumberProperty("translateY", 0, "Translate Y"),
       new ColorProperty("fill", "black"),
       new ColorProperty("stroke", "black"),
-
-    ].reduce((prev, curr) => ({ ...prev, [curr.name]: { ...curr } }), {});
+      new StringProperty(
+        "stroke-dasharray",
+        "0,0",
+        "Stroke Type"
+      ),
+    ].reduce((prev, curr) => ({ ...prev, [curr.name]: curr }), {});
   }
 
-  abstract getProperties(): Record<string, Property>;
+  abstract getProperties(name?: string): Record<string, Property>;
 }

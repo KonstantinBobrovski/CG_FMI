@@ -1,26 +1,35 @@
 import Group from "../models/group";
 import {
-  ColorProperty,
   NameProperty,
-  NumberProperty,
-  PercentageProperty,
   Property,
 } from "../models/properties";
+import { SvgInHtml } from "../types/svg";
+import { BaseFigureFactory } from "./base-figure.factory";
 
-export class GroupFactory {
-  static createGroup(name: string): Group {
-    const group = new Group();
-    group.properties = this.getBaseProperties(name);
+export class GroupFactory extends BaseFigureFactory<Group> {
+  createFigure(groupName: string): Group {
+    const element = document.createElementNS(
+      BaseFigureFactory.svgNS,
+      "g"
+    ) as SvgInHtml;
+    const group = new Group(element);
+    group.properties = this.getProperties(groupName);
+    group.refreshProperties();
     return group;
   }
-
-  private static getBaseProperties(groupName: string): Record<string, Property> {
-    return [
+  getProperties(groupName: string): Record<string, Property> {
+    const currentProps = [
       new NameProperty("groupName", groupName),
-      new ColorProperty("fill", "#000000", "Group Color"),
-      new PercentageProperty("opacity", 1, "Group Opacity"),
-      new NumberProperty("z-index", 1, "z-index"),
-    ].reduce((prev, curr) => ({ ...prev, [curr.name]: { ...curr } }), {});;
+    ].reduce((prev, curr) => ({ ...prev, [curr.name]: curr }), {});
+
+    return {
+      ...currentProps,
+      ...Object.fromEntries(
+        Object.entries(BaseFigureFactory.getBaseProperties("line")).filter(
+          ([key]) => key !== "name" && key !== 'fill' && key !== 'stroke'
+        )
+      ),
+    }
   }
 }
 
