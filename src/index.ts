@@ -5,6 +5,7 @@ import { bootstrapPersistence } from "./ui/bootstrap-persistence";
 import { Copy, Delete, Paste } from "./ui/actions";
 import { figureFactories } from "./factories";
 import { SvgInHtml } from "./types/svg";
+import Group from "./models/group";
 
 const figuresChooser = document.querySelector("#figures-chooser")!;
 const svgRoot: SvgInHtml = document.querySelector("#svg-root")!;
@@ -29,29 +30,29 @@ const initFigureEventListeners = (figure: Figure) => {
   });
 };
 
-export const dragAndDropBootstrap = (figure: Figure) => {
-  figure.svgElement.addEventListener("mousedown", (e) => {
+export const dragAndDropBootstrap = (entity: Figure | Group) => {
+  entity.svgElement.addEventListener("mousedown", (e) => {
     const startX = e.clientX;
     const startY = e.clientY;
-    const startTranslateY = +figure.properties["translateY"]?.value || 0;
-    const startTranslateX = +figure.properties["translateX"]?.value || 0;
+    const startTranslateY = +entity.properties["translateY"]?.value || 0;
+    const startTranslateX = +entity.properties["translateX"]?.value || 0;
 
     const moveAt = (e: MouseEvent) => {
       const currentX = e.clientX;
       const currentY = e.clientY;
       const ctm = svgRoot.getScreenCTM()!;
-      const rotate = +figure.properties["rotate"].value;
-      const scaleX = +figure.properties["scaleX"].value;
-      const scaleY = +figure.properties["scaleY"].value;
+      const rotate = +entity.properties["rotate"].value;
+      const scaleX = +entity.properties["scaleX"].value;
+      const scaleY = +entity.properties["scaleY"].value;
       const radians = rotate * (Math.PI / 180);
       const dx = (currentX - startX) / ctm.a / scaleX;
       const dy = (currentY - startY) / ctm.d / scaleY;
       const rotatedDx = dx * Math.cos(-radians) - dy * Math.sin(-radians);
       const rotatedDy = dx * Math.sin(-radians) + dy * Math.cos(-radians);
 
-      figure.properties["translateX"].value = (startTranslateX + rotatedDx).toString();
-      figure.properties["translateY"].value = (startTranslateY + rotatedDy).toString();
-      figure.refreshProperties();
+      entity.properties["translateX"].value = (startTranslateX + rotatedDx).toString();
+      entity.properties["translateY"].value = (startTranslateY + rotatedDy).toString();
+      entity.refreshProperties();
     };
 
     const stopMoving = () => {

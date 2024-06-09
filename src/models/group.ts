@@ -1,11 +1,11 @@
+import { SvgInHtml } from "../types/svg";
 import Figure from "./figure";
-import { Property } from "./properties";
 
-class Group {
+class Group extends Figure {
     figures: Figure[];
-    properties: Record<string, Property>;
 
-    constructor() {
+    constructor(svgEl: SvgInHtml) {
+        super(svgEl);
         this.figures = [];
         this.properties = {};
     }

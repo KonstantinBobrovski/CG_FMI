@@ -16,7 +16,7 @@ export const onCreateElement = () => {
 export abstract class BaseFigureFactory<T extends Figure> {
   public static svgNS: string = "http://www.w3.org/2000/svg" as const;
 
-  abstract createFigure(): T;
+  abstract createFigure(name?: string): T;
 
   static getBaseProperties(figureType: string): Record<string, Property> {
     const getFigureNumber = (figureType: string): number => {
@@ -48,5 +48,5 @@ export abstract class BaseFigureFactory<T extends Figure> {
     ].reduce((prev, curr) => ({ ...prev, [curr.name]: curr }), {});
   }
 
-  abstract getProperties(): Record<string, Property>;
+  abstract getProperties(name?: string): Record<string, Property>;
 }

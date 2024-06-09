@@ -4,6 +4,7 @@ import { GroupFactory } from "./factories/group.factory";
 import Figure from "./models/figure";
 import Group from "./models/group";
 import { NameProperty, Property } from "./models/properties";
+import { SvgInHtml } from "./types/svg";
 import { Copy } from "./ui/actions";
 import { closePropPane, createGroupPropPane, createPropPane } from "./ui/create-prop-pane";
 const svgRoot = document.querySelector<HTMLElement>("#svg-root")!;
@@ -37,11 +38,14 @@ export const figuresContainer = {
       alert('Group "' + groupName + '" already exists');
     } else if (groupName instanceof Group) {
       this.groups.push(groupName);
+      dragAndDropBootstrap(groupName);
       this.refreshOrder();
     }
     else {
-      const group = GroupFactory.createGroup(groupName);
+      const groupFactory = new GroupFactory();
+      const group = groupFactory.createFigure(groupName);
       this.groups.push(group);
+      dragAndDropBootstrap(group);
       this.refreshOrder();
     }
   },
@@ -81,6 +85,8 @@ export const figuresContainer = {
     const g = document.createElementNS(BaseFigureFactory.svgNS, "g");
     group.figures.forEach(fig => g.appendChild(fig.svgElement));
     svgRoot.appendChild(g);
+    group.svgElement = g as SvgInHtml;
+    dragAndDropBootstrap(group);
   },
   createFigureTreeElement(fig: Figure) {
     const figureElement = document.createElement("li");
@@ -138,7 +144,8 @@ export const figuresContainer = {
   },
 
   copyGroup(group: Group) {
-    const copiedGroup = GroupFactory.createGroup(group.properties['groupName'].value + "-copy");
+    const groupFactory = new GroupFactory();
+    const copiedGroup = groupFactory.createFigure(group.properties["groupName"].value + "-copy");
     group.figures.forEach(figure => {
       const copiedFigure = Copy(figure);
       if (copiedFigure) {
@@ -201,6 +208,21 @@ export const figuresContainer = {
     if (groupName) {
       const group = this.groups.find(group => group.properties['groupName'].value === groupName);
       if (group) {
+
+        fig.svgElement.addEventListener("click", () => {
+          if (group) {
+            createGroupPropPane(group);
+          } else {
+            createPropPane(fig);
+          }
+        });
+
+        fig.svgElement.addEventListener("dblclick", () => {
+          if (group) {
+            createPropPane(fig);
+          }
+        });
+
         group.addFigure(fig);
         this.figures = this.figures.filter(f => f !== fig);
         figureElement.remove();
