@@ -29,15 +29,29 @@ export const figuresContainer = {
         +group1.properties["z-index"].value -
         +group2.properties["z-index"].value
     );
+    this.groups.forEach((group) => {
+      group.figures.sort(
+        (fig1, fig2) =>
+          +fig1.properties["z-index"].value - +fig2.properties["z-index"].value
+      );
+    });
     this.clearElement(svgRoot);
     this.clearElement(treemap);
     this.refreshTree();
   },
   refreshTree() {
     this.clearElement(treemap);
-
-    this.groups.forEach((group) => this.createGroupTreeElement(group));
-    this.figures.forEach((fig) => this.createFigureTreeElement(fig));
+    const combined = (this.groups as Figure[])
+      .concat(this.figures)
+      .sort(
+        (fig1, fig2) =>
+          +fig1.properties["z-index"].value - +fig2.properties["z-index"].value
+      );
+    combined.forEach((fig) =>
+      fig instanceof Group
+        ? this.createGroupTreeElement(fig)
+        : this.createFigureTreeElement(fig)
+    );
   },
   add(figure: Figure) {
     figuresContainer.figures.push(figure);
@@ -119,6 +133,7 @@ export const figuresContainer = {
     const g =
       group.svgElement ||
       document.createElementNS(BaseFigureFactory.svgNS, "g");
+    this.clearElement(g);
     group.figures.forEach((fig) => g.appendChild(fig.svgElement));
     svgRoot.appendChild(g);
     group.svgElement = g as SvgInHtml;

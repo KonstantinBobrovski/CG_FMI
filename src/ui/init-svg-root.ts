@@ -80,7 +80,7 @@ export const initializeSvgRoot = () => {
       const selectedFigure = getSelectedFigure();
       if (!selectedFigure) return;
 
-      let t = Copy(selectedFigure);
+      const t = Copy(selectedFigure);
       setCopiedFigure(t);
       t?.svgElement.addEventListener("click", () => {
         createPropPane(t!);
