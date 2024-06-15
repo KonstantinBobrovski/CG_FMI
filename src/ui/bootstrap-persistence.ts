@@ -5,6 +5,24 @@ import { createPropPane } from "./create-prop-pane";
 
 const svgRoot = document.querySelector("#svg-root")!;
 import { figureFactories } from "../factories";
+import { dragAndDropBootstrap } from "./drag-and-drop";
+import { initFigureEventListeners } from "./figure-listener";
+
+type SaveFile = {
+  figuresToSave: {
+    type: string;
+    properties: Record<string, Property>;
+  }[];
+  groupsToSave: {
+    type: string;
+    properties: Record<string, Property>;
+    children: {
+      type: string;
+      properties: Record<string, Property>;
+    }[];
+  }[];
+};
+
 export const bootstrapPersistence = (dragAndDrop: (figure: Figure) => void) => {
   document.querySelector("#download-png")!.addEventListener("click", () => {
     const svgData = new XMLSerializer().serializeToString(svgRoot);
@@ -42,9 +60,18 @@ export const bootstrapPersistence = (dragAndDrop: (figure: Figure) => void) => {
       type: figure.constructor.name,
       properties: figure.properties,
     }));
+    const groupsToSave = figuresContainer.groups.map((group) => ({
+      type: group.constructor.name,
+      properties: group.properties,
+      children: group.figures.map((figure) => ({
+        type: figure.constructor.name,
+        properties: figure.properties,
+      })),
+    }));
     const link = document.createElement("a");
     link.download = "figures.json";
-    const figuresJSON = JSON.stringify(figuresToSave);
+    const toSave: SaveFile = { figuresToSave, groupsToSave };
+    const figuresJSON = JSON.stringify(toSave);
     link.href = `data:text/json;charset=utf-8,${encodeURIComponent(
       figuresJSON
     )}`;
@@ -67,8 +94,10 @@ export const bootstrapPersistence = (dragAndDrop: (figure: Figure) => void) => {
       reader.readAsText(file);
       reader.addEventListener("load", (e) => {
         figuresContainer.figures = [];
-        const figures = JSON.parse((e.target as FileReader).result as string);
-        figures.forEach(
+        const figures = JSON.parse(
+          (e.target as FileReader).result as string
+        ) as SaveFile;
+        figures.figuresToSave.forEach(
           (figure: { type: string; properties: Record<string, Property> }) => {
             const newFigure = figureFactories
               .find(
@@ -80,16 +109,51 @@ export const bootstrapPersistence = (dragAndDrop: (figure: Figure) => void) => {
               alert("failed to import figure: " + figure.type);
               return;
             }
-            newFigure.properties = figure.properties;
-            newFigure.refreshProperties();
-            newFigure.svgElement.addEventListener("click", () =>
-              createPropPane(newFigure)
-            );
-            figuresContainer.add(newFigure);
+            Object.keys(figure.properties).forEach((key) => {
+              const prop = figure.properties[key];
+              newFigure.properties[key].value = prop.value;
+            });
 
-            dragAndDrop(newFigure);
+            newFigure.refreshProperties();
+            figuresContainer.add(newFigure);
+            initFigureEventListeners(newFigure);
+            dragAndDropBootstrap(newFigure);
           }
         );
+
+        figures.groupsToSave.forEach((savedGroup) => {
+          const createdGroup = figuresContainer.addGroup(
+            savedGroup.properties["groupName"].value || "group"
+          );
+          Object.keys(savedGroup.properties).forEach((key) => {
+            const prop = savedGroup.properties[key];
+            createdGroup.properties[key].value = prop.value;
+          });
+          createdGroup.refreshProperties();
+          console.log(createdGroup);
+
+          savedGroup.children.forEach((savedFigure) => {
+            const newFigure = figureFactories
+              .find(
+                (factory) =>
+                  factory.constructor.name === savedFigure.type + "Factory"
+              )
+              ?.createFigure();
+            if (!newFigure) {
+              alert("failed to import figure: " + savedFigure.type);
+              return;
+            }
+            Object.keys(savedFigure.properties).forEach((key) => {
+              const prop = savedFigure.properties[key];
+              newFigure.properties[key].value = prop.value;
+            });
+            newFigure.refreshProperties();
+            createdGroup.addFigure(newFigure);
+            initFigureEventListeners(newFigure);
+            dragAndDropBootstrap(newFigure);
+          });
+        });
+
         figuresContainer.refreshOrder();
       });
     });

@@ -52,17 +52,21 @@ export const figuresContainer = {
       )
     ) {
       alert('Group "' + groupName + '" already exists');
+      return figuresContainer.groups.find(
+        (group) => group.properties["groupName"].value === groupName
+      )!;
     } else if (groupName instanceof Group) {
       this.groups.push(groupName);
       dragAndDropBootstrap(groupName);
       this.refreshOrder();
-    } else {
-      const groupFactory = new GroupFactory();
-      const group = groupFactory.createFigure(groupName);
-      this.groups.push(group);
-      dragAndDropBootstrap(group);
-      this.refreshOrder();
+      return groupName;
     }
+    const groupFactory = new GroupFactory();
+    const group = groupFactory.createFigure(groupName);
+    this.groups.push(group);
+    dragAndDropBootstrap(group);
+    this.refreshOrder();
+    return group;
   },
   clearElement(element: HTMLElement) {
     while (element.firstChild) {
@@ -112,7 +116,9 @@ export const figuresContainer = {
 
     treemap.appendChild(groupElement);
 
-    const g = document.createElementNS(BaseFigureFactory.svgNS, "g");
+    const g =
+      group.svgElement ||
+      document.createElementNS(BaseFigureFactory.svgNS, "g");
     group.figures.forEach((fig) => g.appendChild(fig.svgElement));
     svgRoot.appendChild(g);
     group.svgElement = g as SvgInHtml;
