@@ -21,7 +21,8 @@ export const dragAndDropBootstrap = (entity: Figure | Group) => {
       );
       const parentScaleX = +(parentGroup?.properties["scaleX"].value || 1);
       const parentScaleY = +(parentGroup?.properties["scaleY"].value || 1);
-      const rotate = +entity.properties["rotate"].value;
+      const parentRotate = +(parentGroup?.properties["rotate"].value || 1);
+      const rotate = +entity.properties["rotate"].value + parentRotate;
       const scaleX = +entity.properties["scaleX"].value * parentScaleX;
       const scaleY = +entity.properties["scaleY"].value * parentScaleY;
       const radians = rotate * (Math.PI / 180);
