@@ -58,9 +58,22 @@ export function Paste(copiedFigure: Figure | null): void {
 }
 
 export function Delete(selectedFigure: Figure | null): void {
-  figuresContainer.figures = figuresContainer.figures.filter(
-    (f) => f !== selectedFigure
+  if (!selectedFigure) return;
+
+  const group = figuresContainer.groups.find((g) =>
+    g.figures.find((f) => f === selectedFigure)
   );
+
+  if (group) {
+    figuresContainer.deleteFigureFromGroup(
+      selectedFigure,
+      group,
+      selectedFigure.svgElement
+    );
+  } else {
+    figuresContainer.deleteFigure(selectedFigure, selectedFigure.svgElement);
+  }
+
   figuresContainer.refreshOrder();
   closePropPane();
 }

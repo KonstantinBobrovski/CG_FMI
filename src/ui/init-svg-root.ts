@@ -1,5 +1,6 @@
 import { figureFactories } from "../factories";
 import { figuresContainer } from "../figures-container";
+import Figure from "../models/figure";
 import { SvgInHtml } from "../types/svg";
 import { Copy, Paste, Delete } from "./actions";
 import { getCopiedFigure, setCopiedFigure } from "./copied-figure";
@@ -13,6 +14,7 @@ const tooltip: HTMLElement = document.querySelector("#tooltip")!;
 const svgRoot: SvgInHtml = document.querySelector("#svg-root")!;
 const zoomOut = document.getElementById("zoom-out")!;
 const wrapper = document.getElementById("svg-root-wrapper")!;
+
 export const initializeSvgRoot = () => {
   let scale = 1;
   const scaleFactor = 1.1;
@@ -82,6 +84,23 @@ export const initializeSvgRoot = () => {
     });
 
     const copyButton = createButton("Copy", "", () => {
+      const allFigures = figuresContainer.figures
+        .concat(figuresContainer.groups.flatMap((g) => g.figures))
+        .concat(figuresContainer.groups);
+      const clickedSvg = e.target as Figure["svgElement"];
+      for (let i = 0; i < allFigures.length; i++) {
+        const candidate = allFigures[i];
+        const candidateEl = allFigures[i].svgElement;
+
+        if (candidateEl === clickedSvg) {
+          setSelectedFigure(candidate);
+          break;
+        } else if (candidateEl.contains(clickedSvg)) {
+          setSelectedFigure(candidate);
+          break;
+        }
+      }
+
       tooltip.style.display = "none";
       const selectedFigure = getSelectedFigure();
       if (!selectedFigure) return;
@@ -99,10 +118,33 @@ export const initializeSvgRoot = () => {
       Paste(copiedFigure);
       changeToSvgCoordinates(mouseX, mouseY, copiedFigure!);
       copiedFigure?.refreshProperties();
+      setCopiedFigure(null);
       tooltip.style.display = "none";
     });
 
     const deleteButton = createButton("Delete", "", () => {
+      const allFigures = figuresContainer.figures
+        .concat(figuresContainer.groups.flatMap((g) => g.figures))
+        .concat(figuresContainer.groups);
+      const clickedSvg = e.target as Figure["svgElement"];
+      console.log({ clickedSvg, allFigures });
+
+      for (let i = 0; i < allFigures.length; i++) {
+        const candidate = allFigures[i];
+        const candidateEl = allFigures[i].svgElement;
+
+        if (candidateEl === clickedSvg) {
+          setSelectedFigure(candidate);
+          console.log({ candidate });
+
+          break;
+        } else if (candidateEl.contains(clickedSvg)) {
+          console.log({ candidate });
+
+          setSelectedFigure(candidate);
+          break;
+        }
+      }
       Delete(getSelectedFigure());
       tooltip.style.display = "none";
     });
