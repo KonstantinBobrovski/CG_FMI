@@ -11,7 +11,8 @@ import { getSelectedFigure, setSelectedFigure } from "./selected-figure";
 import { changeToSvgCoordinates } from "./to-svg-coordinates";
 const tooltip: HTMLElement = document.querySelector("#tooltip")!;
 const svgRoot: SvgInHtml = document.querySelector("#svg-root")!;
-
+const zoomOut = document.getElementById("zoom-out")!;
+const wrapper = document.getElementById("svg-root-wrapper")!;
 export const initializeSvgRoot = () => {
   let scale = 1;
   const scaleFactor = 1.1;
@@ -19,7 +20,7 @@ export const initializeSvgRoot = () => {
   const zoom = (event: WheelEvent) => {
     event.preventDefault();
 
-    const { left, top, width, height } = svgRoot.getBoundingClientRect();
+    const { left, top, width, height } = wrapper.getBoundingClientRect();
     const { clientX, clientY, deltaY } = event;
 
     const scaleFactor = deltaY < 0 ? 1.1 : 1 / 1.1;
@@ -32,11 +33,16 @@ export const initializeSvgRoot = () => {
     const originY = yOffset * 100;
 
     scale = Math.max(zoomScale, 1);
-    svgRoot.style.transformOrigin = `${originX}% ${originY}%`;
-    svgRoot.style.transform = `scale(${scale})`;
+    if (scale == 1) {
+      zoomOut.classList.add("hidden");
+    } else {
+      zoomOut.classList.remove("hidden");
+    }
+    wrapper.style.transformOrigin = `${originX}% ${originY}%`;
+    wrapper.style.transform = `scale(${scale})`;
   };
 
-  svgRoot.addEventListener("wheel", zoom);
+  wrapper.addEventListener("wheel", zoom);
 
   svgRoot.addEventListener("click", (e) => {
     if ((e.target as HTMLElement) === svgRoot) {
