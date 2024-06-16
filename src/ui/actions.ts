@@ -35,16 +35,10 @@ export function Copy(selectedFigure: Figure): Figure | null {
     "name",
     `${copiedFigure.properties["name"].value}-copy`
   );
-  copiedFigure.properties["translateX"] = new NumberProperty(
-    "translateX",
-    0,
-    "Translate X"
-  );
-  copiedFigure.properties["translateY"] = new NumberProperty(
-    "translateY",
-    0,
-    "Translate Y"
-  );
+  copiedFigure.properties["translateX"].value =
+    +copiedFigure.properties["translateX"].value + 5 + "";
+  copiedFigure.properties["translateY"].value =
+    +copiedFigure.properties["translateY"].value + 5 + "";
 
   // add needed properties
   copiedFigure.refreshProperties();
