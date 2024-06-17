@@ -22,10 +22,10 @@ export class LineFactory extends BaseFigureFactory<Line> {
 
   getProperties(): Record<string, Property> {
     const currentProps = [
-      new NumberProperty("x1", 0),
-      new NumberProperty("y1", 0),
-      new NumberProperty("x2", 50),
-      new NumberProperty("y2", 50),
+      new NumberProperty("x1", 0, "x1", -100),
+      new NumberProperty("y1", 0, "y1", -100),
+      new NumberProperty("x2", 50, "x2", -100),
+      new NumberProperty("y2", 50, "y2", -100),
       new NumberProperty("z-index", onCreateElement(), "z-index"),
     ].reduce((prev, curr) => ({ ...prev, [curr.name]: curr }), {});
 
